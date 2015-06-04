@@ -7,8 +7,9 @@ import java.util.UUID;
  *
  * @author Ginger The Player class provides a standard interface for generating
  * unique players and selecting actions.
+ * @param <Action>
  */
-public abstract class Player {
+public abstract class Player<Action> {
 
     public UUID id;
 

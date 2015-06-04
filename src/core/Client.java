@@ -6,12 +6,14 @@ import java.util.ArrayList;
  *
  * @author Ginger Client initializes the Game and Player objects and holds the
  * primary game loop.
+ * @param <S>
+ * @param <Action>
  */
-public class Client {
+public class Client<S extends State, Action> {
 
-    public static void play(Game game, Player[] players) {
+    public void play(Game<State, Action> game) {
         while (!game.isOver()) {
-            Player player = game.getNextPlayer();
+            Player<Action> player = game.getNextPlayer();
             State state = game.getState(player);
             ArrayList<Action> actions = game.getActions(player);
             Action action = player.chooseAction(state, actions);

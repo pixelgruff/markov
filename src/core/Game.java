@@ -7,10 +7,12 @@ import java.util.LinkedList;
  *
  * @author Ginger The Game interface guarantees Markov Decision Process-like
  * functionality for subroutines requesting information about the game.
+ * @param <S>
+ * @param <Action>
  */
-public abstract class Game {
+public abstract class Game<S extends State, Action> {
 
-    private LinkedList<State> states;
+    private LinkedList<S> states;
     final private ArrayList<Player> players_;
 
     public Game(final ArrayList<Player> players) {
