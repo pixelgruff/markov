@@ -2,7 +2,7 @@ package core;
 
 /**
  *
- * @author Ginger State represents a single state in a <GameType> Game
+ * @author Ginger State represents a single state in a Game
  */
 public abstract class State {
 
