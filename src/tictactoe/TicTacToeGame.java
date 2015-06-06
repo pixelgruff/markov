@@ -6,7 +6,9 @@
 package tictactoe;
 
 import core.Game;
+
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -20,10 +22,11 @@ public class TicTacToeGame extends Game<TicTacToe, TicTacToeAction, TicTacToeSta
     public TicTacToeGame(ArrayList<TicTacToePlayer> players) {
         super(players);
 
-        assert (players.size() == 2);
-        // We expect a very finite set of players
-        assert ((players.get(1).mark_ == Mark.X && players.get(2).mark_ == Mark.O)
-                || (players.get(1).mark_ == Mark.O && players.get(2).mark_ == Mark.X));
+        assert (players.size() == Mark.values().length);
+        for(final Mark mark : Mark.values())
+        {
+            assert (players.stream().anyMatch(player -> (player.getMark() == mark)));
+        }
     }
 
     @Override
@@ -32,14 +35,13 @@ public class TicTacToeGame extends Game<TicTacToe, TicTacToeAction, TicTacToeSta
     }
 
     @Override
-    public TicTacToePlayer getNextPlayer() {
-        for (TicTacToePlayer p : players_) {
-            if (p.mark_ == currentMark_) {
-                currentMark_ = (currentMark_ == Mark.X) ? Mark.O : Mark.X;
-                return p;
-            }
-        }
-        return null;
+    public TicTacToePlayer getNextPlayer()
+    {
+        // Gross
+        return players_.stream()
+                .filter(player -> (player.getMark() == (currentMark_ == Mark.X ? Mark.O : Mark.X)))
+                .collect(Collectors.toList()).get(0);
+
     }
 
     @Override

@@ -19,7 +19,12 @@ import core.State;
  */
 public class TicTacToePlayer extends Player<TicTacToe, TicTacToeAction> {
 
-    public final Mark mark_;
+    private final Mark mark_;
+    
+    public Mark getMark()
+    {
+        return mark_;
+    }
 
     public TicTacToePlayer(Mark mark)
     {
