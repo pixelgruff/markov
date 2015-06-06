@@ -1,0 +1,6 @@
+/bin/
+.classpath
+.metadata/
+erlide.log
+rpc_monitor*
+*.dump

@@ -2,6 +2,7 @@ package core;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -11,12 +12,13 @@ import java.util.LinkedList;
  * @param <P>
  * @param <A>
  */
-public abstract class Game<S extends State, P extends Player, A> {
+public abstract class Game<T extends GameType, A extends Action<T>, S extends State<T, A>, P extends Player<T, A>>
+{
+    protected LinkedList<S> states_;
+    final protected List<P> players_;
 
-    private LinkedList<S> states;
-    final protected ArrayList<P> players_;
-
-    public Game(final ArrayList<P> players) {
+    public Game(final ArrayList<P> players)
+    {
         players_ = players;
     }
 
@@ -28,7 +30,9 @@ public abstract class Game<S extends State, P extends Player, A> {
 
     abstract public void takeAction(P p, A action);
 
-    public boolean isOver() {
-        return states.getLast().isTerminal();
+    public boolean isOver()
+    {
+        // Assume we never contain null states
+        return states_ != null && !states_.isEmpty() && states_.getLast().isTerminal();
     }
 }
