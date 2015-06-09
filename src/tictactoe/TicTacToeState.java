@@ -1,159 +1,137 @@
 package tictactoe;
 
-import core.Player;
+import core.Score;
 import core.State;
+
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+
+import java.util.Collection;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import utils.Validate;
 import utils.Vector2;
 
 /**
  *
  * @author Ginger
  */
-public class TicTacToeState implements State {
+public class TicTacToeState implements State<TicTacToeAction>
+{
+    private final TicTacToeBoard board_;
+    private boolean terminal_;
+    private final List<TicTacToeAction> actions_;
 
-    private class Board {
-        /* width, height, kInARow allow for tic-tac-toe variants, should we 
-         * choose to implement them */
+    private static final int ITERABLE_PATH_COUNT = 4;
+    private static final int INVERSE = -1;
 
-        private final int width = 3;
-        private final int height = 3;
-        private final int kInARow = 3;
-        private final Mark[][] positions;
-
-        private Board() {
-            positions = new Mark[width][height];
-            for (int i = 0; i < width; i++) {
-                for (int j = 0; j < height; j++) {
-                    Mark p = Mark.Empty;
-                    positions[i][j] = p;
-                }
-            }
-        }
-
-        private boolean has(final Vector2 position) {
-            return (position.getX() >= 0
-                    && position.getX() < width
-                    && position.getY() >= 0
-                    && position.getY() < height);
-        }
-
-        private Mark get(final Vector2 position) {
-            return positions[position.getX()][position.getY()];
-        }
-
-        private void set(final int x, final int y, final Mark mark) {
-            positions[x][y] = mark;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            Arrays.asList(positions).stream().forEach((row) -> {
-                builder.append(Arrays.deepToString(row).replaceAll("Empty", "?").concat(System.lineSeparator()));
-            });
-            return builder.toString();
-        }
-    }
-
-    private final Board board_ = new Board();
-    private final HashMap<Player, Double> scores_ = new HashMap<>();
-    private boolean isTerminal_;
-    private int movesMade_ = 0;
-
-    @Override
-    public boolean isTerminal() {
-        return isTerminal_;
-    }
-
-    @Override
-    public double getScore(Player p) {
-        return scores_.getOrDefault(p, 0.);
-    }
-
-    public ArrayList<Vector2> getAllEmpty() {
-        ArrayList<Vector2> empties = new ArrayList<>();
-        for (int i = 0; i < board_.width; i++) {
-            for (int j = 0; j < board_.height; j++) {
-                Vector2 position = new Vector2(i, j);
-                if (board_.get(new Vector2(i, j)) == Mark.Empty) {
-                    empties.add(position);
-                }
-            }
-        }
-        return empties;
-    }
-
-    public void mark(final Player player, final Vector2 position, final Mark mark) {
-        board_.set(position.getX(), position.getY(), mark);
-        // Check if the board is now full
-        isTerminal_ = (++movesMade_ == board_.width * board_.height) ? true : isTerminal_;
-        // Now we can perform a (relatively) efficient check for winning moves
-        if (isWinningMove(position, mark)) {
-            isTerminal_ = true;
-            scores_.put(player, 1.);
-        }
-    }
-
-    private boolean isWinningMove(final Vector2 position, final Mark mark) {
-        HashMap<Vector2, Integer> walks = new HashMap<>();
-        // Look in every direction on a 2D board
-        for (int dX = -1; dX <= 1; dX++) {
-            for (int dY = -1; dY <= 1; dY++) {
-                Vector2 delta = new Vector2(dX, dY);
-                walks.put(delta, getWalkLength(position, delta, mark));
-            }
-        }
-        /**
-         * Paths can extend in two directions from any position; we map the
-         * eight cardinal directions to their four paths (delta and -delta)
-         */
-        HashMap<Vector2, Integer> paths = new HashMap<>();
-        // Map walk lengths to paths
-        walks.keySet().stream().forEach((delta) -> {
-            Vector2 inverse = delta.multiply(new Vector2(-1, -1));
-            /*
-             If the inverse is present in the map, append the value of its
-             corresponding walk.
-             */
-            if (paths.containsKey(inverse)) {
-                paths.replace(inverse, paths.get(inverse) + walks.get(delta));
-            } else {
-                paths.put(delta, walks.get(delta));
-            }
-        });
-        // Check if any path lengths constitute a win
-        // Match kInARow - 1 because paths do not contain their origin position
-        return paths.values().stream().anyMatch(i -> i >= board_.kInARow - 1);
-    }
-
-    /* 
-     Recursively walk in a single direction until walking off the board or
-     encountering a change in mark type
+    /*
+     * Generate unit vectors to point towards every possible direction that we
+     * can "walk" along the TicTacToeBoard. These "paths" are unique lines
+     * representing the x axis, the y axis, the line y = x, and the line y = -x
      */
-    private int getWalkLength(final Vector2 current, final Vector2 delta, final Mark mark) {
-        // Terminate 0-delta cases
-        if (delta.getX() == 0 && delta.getY() == 0) {
-            return 0;
+    private static final Collection<Vector2> PATHS = new ArrayList<Vector2>(ITERABLE_PATH_COUNT);
+    static
+    {
+        // Initialize our directions
+        for(int dX = -1; dX <= 1; ++dX)
+        {
+            for(int dY = -1; dY <= 1; ++dY)
+            {
+                final Vector2 unitVector = new Vector2(dX, dY);
+                /*
+                 * Only append if we don't already contain our inverse (vector
+                 * for the same line)
+                 */
+                if(!PATHS.contains(unitVector.multiply(INVERSE)))
+                {
+                    PATHS.add(unitVector);
+                }
+            }
         }
-        // Calculate next location
-        Vector2 nextPosition = current.add(delta);
-        // Detect board overrun
-        if (!board_.has(nextPosition)) {
-            return 0;
-        }
-        // Detect change in mark
-        Mark nextMark = board_.get(nextPosition);
-        if (nextMark != mark) {
-            return 0;
-        }
-        // Checks out Lou; step to the next position
-        return 1 + getWalkLength(nextPosition, delta, mark);
+    }
+
+    public TicTacToeState(final TicTacToeBoard board)
+    {
+        board_ = new TicTacToeBoard(board);
+        terminal_ = false;
+        actions_ = new LinkedList<TicTacToeAction>();
+    }
+
+    public TicTacToeState(final TicTacToeState copy)
+    {
+        Validate.notNull(copy, "Cannot create a copy of a null TicTacToeState");
+        board_ = new TicTacToeBoard(copy.board_);
+        actions_ = new LinkedList<TicTacToeAction>(copy.actions_);
+        terminal_ = copy.terminal_;
     }
 
     @Override
-    public String toString() {
-        return String.format("%s\n%s\n", board_.toString(), scores_.toString());
+    public boolean isTerminal()
+    {
+        return terminal_;
+    }
+
+    public List<Vector2> getAvailablePositions()
+    {
+        final List<Vector2> emptySquares = new ArrayList<Vector2>();
+        board_.getBoardStateAsMap().entrySet().stream()
+                .filter(boardEntry -> boardEntry.getValue() == null)
+                .map(boardEntry -> boardEntry.getKey())
+                .forEach(position -> emptySquares.add(position));
+
+        return emptySquares;
+    }
+
+    public Score applyAction(final TicTacToeAction action)
+    {
+        Validate.isFalse(terminal_, "Cannot make a move for a state that is already terminal!");
+
+        Validate.notNull(action, "Cannot apply a null action to a TicTacToeBoard");
+        final TicTacToeMark mark = action.getMark();
+        Validate.notNull(mark, "Cannot apply a null mark to a TicTacToeBoard");
+        final Vector2 position = action.getPosition();
+        board_.setMarkForPosition(position, mark);
+        actions_.add(action);
+
+        final boolean won = isWinningMove(position, mark);
+        terminal_ = (actions_.size() == board_.getTotalPossibleMoves()) || won;
+        return won ? new Score(1) : new Score(0);
+    }
+
+    private boolean isWinningMove(final Vector2 position, final TicTacToeMark mark)
+    {
+        for(final Vector2 path : PATHS)
+        {
+            int totalPathLength = 1;
+            /*
+             * Walk in both directions until we hit the end of the board or we
+             * hit a mark that isn't ours
+             */
+            final Vector2[] directions = { path, path.multiply(INVERSE) };
+            for(final Vector2 direction : directions)
+            {
+                for(Vector2 currentPosition = position.add(direction); board_
+                        .isPositionWithinBoard(currentPosition)
+                        && board_.getMarkForPosition(currentPosition) == mark; currentPosition = currentPosition
+                        .add(direction))
+                {
+                    ++totalPathLength;
+                }
+            }
+            if(totalPathLength >= board_.getContiguousMovesToWin())
+            {
+                return true;
+            }
+
+        }
+        return false;
+    }
+
+    @Override
+    public String toString()
+    {
+        return String.format("%s%n%s%n", board_, actions_);
     }
 }

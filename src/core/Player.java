@@ -7,7 +7,6 @@ import java.util.UUID;
  * @author Ginger The Player class provides a standard interface for generating
  *         unique players and selecting actions.
  */
-@SuppressWarnings("rawtypes")
 public class Player implements Comparable<Player>
 {
     /*
@@ -18,7 +17,7 @@ public class Player implements Comparable<Player>
     private final UUID id_;
     private final String name_;
 
-    public Player(String name)
+    public Player(final String name)
     {
         id_ = UUID.randomUUID();
         name_ = name;

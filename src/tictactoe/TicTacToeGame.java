@@ -7,80 +7,109 @@ package tictactoe;
 
 import core.Game;
 import core.Player;
+import core.Score;
 
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
-import utils.Vector2;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import utils.Validate;
 
 /**
  *
  * @author Ginger
  */
-public class TicTacToeGame extends Game<TicTacToeState, TicTacToeAction> {
-
+public class TicTacToeGame extends Game<TicTacToeAction, TicTacToeState>
+{
     // X goes first
-    private Mark currentMark_ = Mark.X;
-    private final HashMap<Player, Mark> marks_ = new HashMap();
-    private final TicTacToeState state_ = new TicTacToeState();
+    private TicTacToeMark currentMark_ = TicTacToeMark.X;
+    private final Map<Player, TicTacToeMark> playersToMarks_;
+    private final TicTacToeState state_;
+    private final Map<Player, Score> scores_;
 
-    public TicTacToeGame(ArrayList<Player> players) {
+    public TicTacToeGame(final List<Player> players)
+    {
         super(players);
-
-        // Tic-tac-toe only has two players
-        assert (players.size() == 2);
-        // Is there a cleaner way to do this?
-        // marks_ = new HashMap(players, Marks.values())
-        marks_.put(players.get(0), Mark.X);
-        marks_.put(players.get(1), Mark.O);
-    }
-
-    @Override
-    public TicTacToeState getState(Player p) {
-        // Players have access to all in-game information
-        return state_;
-    }
-
-    @Override
-    public Player getCurrentPlayer() {
-        assert(!isOver());
-        // Gross?
-        return players_.stream()
-                .filter(player -> marks_.get(player) == currentMark_)
-                .findFirst().get();
-    }
-
-    @Override
-    public ArrayList<TicTacToeAction> getActions(Player p) {
-        // Actions in tic-tac-toe are not player-specific
-        ArrayList<Vector2> empties = state_.getAllEmpty();
-        /*
-        This definitely feels like it's made to be done functionally, but I ran
-        into problems ¯\_(ツ)_/¯	
-        Behold a hybrid approach
-        */
-        ArrayList<TicTacToeAction> actions = new ArrayList<>();
-        empties.stream().forEach(v -> actions.add(new TicTacToeAction(v.getX(), v.getY())));
         
-        return actions;
+        final TicTacToeBoard board = new TicTacToeBoard();
+        state_ = new TicTacToeState(board);
+        scores_ = new HashMap<Player, Score>();
+
+        Validate.isTrue(players.size() == TicTacToeMark.values().length,
+                "Cannot create a TicTacToeGame with " + players.size() + " players");
+
+        playersToMarks_ = new HashMap<Player, TicTacToeMark>(players.size());
+        for(int i = 0; i < players.size(); ++i)
+        {
+            playersToMarks_.put(players.get(i), TicTacToeMark.values()[i]);
+        }
     }
 
     @Override
-    public void takeAction(Player player, TicTacToeAction action) {
-        // Log or save the old state? 
+    public TicTacToeState getState(final Player player)
+    {
+        /*
+         * Players have access to all in-game information (but by copy. Those
+         * nefarious players, you never know what they might do
+         */
+        return new TicTacToeState(state_);
+    }
+    
+    public TicTacToeMark getMarkForPlayer(final Player player)
+    {
+        return playersToMarks_.get(player);
+    }
+    
+    @Override
+    public Score getPlayerScore(final Player player)
+    {
+        return scores_.getOrDefault(player, new Score(0));
+    }
 
-        // Verify this is the correct player
-        assert (marks_.get(player) == currentMark_);
-        // Verify this action is in the action space for this player
-        assert (getActions(player).contains(action));
+    @Override
+    public Player getCurrentPlayer()
+    {
+        if(isOver())
+        {
+            return null;
+        }
+
+        return playersToMarks_.entrySet().stream()
+                .filter(playerToMark -> playerToMark.getValue() == currentMark_).findFirst()
+                .map(playerToMark -> playerToMark.getKey()).orElse(null);
+    }
+
+    @Override
+    public Collection<TicTacToeAction> getActions(final Player player)
+    {
+        // Don't return any actions if the game is over
+        return isOver() ? Collections.emptyList() : state_.getAvailablePositions().stream()
+                .map(position -> new TicTacToeAction(position, getMarkForPlayer(player)))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void takeAction(Player player, TicTacToeAction action)
+    {
+        // Log or save the old state?
+
+        Validate.isTrue(playersToMarks_.get(player) == currentMark_, "Cannot take an action for " + player + "; it's not your turn!");
+        Validate.isTrue(getActions(player).contains(action), "Cannot take action " + action + "; it simply isn't possible");
         // Mark the board
-        state_.mark(player, action.position, marks_.get(player));
+        final Score scoreOfAction = state_.applyAction(action);
+        final Score previousScore = getPlayerScore(player);
+        scores_.put(player, scoreOfAction.add(previousScore));
+
         // Swap the current mark
-        currentMark_ = (currentMark_ == Mark.X) ? Mark.O : Mark.X;
+        currentMark_ = (currentMark_ == TicTacToeMark.X) ? TicTacToeMark.O : TicTacToeMark.X;
     }
 
     @Override
-    public boolean isOver() {
+    public boolean isOver()
+    {
         return state_.isTerminal();
     }
-
 }

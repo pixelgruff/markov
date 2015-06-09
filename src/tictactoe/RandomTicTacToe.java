@@ -3,9 +3,13 @@ package tictactoe;
 import core.Client;
 import core.Player;
 import core.Policy;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -14,21 +18,22 @@ import java.util.Random;
  */
 public class RandomTicTacToe {
     // A random policy for testing
-    private static final Policy<TicTacToeState, TicTacToeAction> randomPolicy_ = 
-            (TicTacToeState state, ArrayList<TicTacToeAction> actions) -> 
-                    actions.get(new Random().nextInt(actions.size()));
-    
-    private static final HashMap<Player, Policy> policies_ = new HashMap<>();
+    private static final Policy<TicTacToeAction, TicTacToeState > randomPolicy_ = 
+            (TicTacToeState state, Collection<TicTacToeAction> actions) -> 
+                    new ArrayList<>(actions).get(new Random().nextInt(actions.size()));
     
     public static void main(String[] args) {
         // Add both players
-        policies_.put(new Player("Player 1"), randomPolicy_);
-        policies_.put(new Player("Player 2"), randomPolicy_);
+        
+        final Map<Player, Policy<TicTacToeAction, TicTacToeState>> policies = new HashMap<Player, Policy<TicTacToeAction, TicTacToeState>>();
+        policies.put(new Player("Player 1"), randomPolicy_);
+        policies.put(new Player("Player 2"), randomPolicy_);
         // Create the game
-        TicTacToeGame tictactoe = new TicTacToeGame(new ArrayList<>(policies_.keySet()));
-        new Client().play(tictactoe, policies_);
+        TicTacToeGame tictactoe = new TicTacToeGame(policies.keySet().stream().collect(Collectors.toList()));
+        new Client<TicTacToeAction, TicTacToeState, TicTacToeGame>().play(tictactoe, policies);
         
         System.out.println("Game over.");
-        System.out.println(tictactoe.getState((Player)policies_.keySet().toArray()[0]));
+        // wat
+        System.out.println(tictactoe.getState((Player)policies.keySet().toArray()[0]));
     }
 }

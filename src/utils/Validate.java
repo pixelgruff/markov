@@ -43,6 +43,33 @@ public final class Validate
     {
         failIfTrue(!assertion, message);
     }
+    
+    /**
+     * Checks to see if the provided assertion is false.
+     * 
+     * @param assertion
+     *            Checks the assertion for truthiness
+     * @throws IllegalArgumentException
+     *             if the assertion is false
+     */
+    public static void isFalse(final boolean assertion)
+    {
+        isTrue(assertion, "Validated assertion was false");
+    }
+
+    /**
+     * Checks to see if the provided assertion is false.
+     * 
+     * @param assertion
+     *            Assertion to check for truthiness
+     * @param message
+     *            Optional message to add to the IllegalArgumentException, if
+     *            thrown
+     */
+    public static void isFalse(final boolean assertion, final String message)
+    {
+        failIfTrue(assertion, message);
+    }
 
     /**
      * Checks to see if the provided value is null.
@@ -69,6 +96,31 @@ public final class Validate
         failIfTrue(value == null, message);
     }
 
+    
+    /**
+     * Checks to see if the provided value is not null.
+     * 
+     * @param value
+     *            Value to check for null-ness
+     */
+    public static void isNull(final Object value)
+    {
+        isNull(value, "Validated object was null");
+    }
+
+    /**
+     * Checks to see if the provided value is not null.
+     * 
+     * @param value
+     *            Value to check for null-ness
+     * @param message
+     *            Optional message to add to the IllegalArgumentException, if
+     *            thrown
+     */
+    public static void isNull(final Object value, final String message)
+    {
+        failIfTrue(value != null, message);
+    }
     /**
      * Checks to see if value is within the open interval [min, max]
      * 
