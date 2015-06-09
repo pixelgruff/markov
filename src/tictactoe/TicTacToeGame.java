@@ -77,6 +77,7 @@ public class TicTacToeGame extends Game<TicTacToeAction, TicTacToeState>
             return null;
         }
 
+        /* Holy crap why doesn't java have a bimap http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/collect/BiMap.html */
         return playersToMarks_.entrySet().stream()
                 .filter(playerToMark -> playerToMark.getValue() == currentMark_).findFirst()
                 .map(playerToMark -> playerToMark.getKey()).orElse(null);
