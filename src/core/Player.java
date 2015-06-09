@@ -1,5 +1,6 @@
 package core;
 
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -23,6 +24,11 @@ public class Player implements Comparable<Player>
         name_ = name;
     }
 
+    public String getName()
+    {
+        return name_;
+    }
+
     @Override
     public int compareTo(Player other)
     {
@@ -36,15 +42,23 @@ public class Player implements Comparable<Player>
     @Override
     public boolean equals(Object other)
     {
-        if(!(other instanceof Player)) {
+        if(!(other instanceof Player))
+        {
             return false;
         }
-        
+
         return compareTo((Player) other) == 0;
     }
-    
+
     @Override
-    public String toString() { 
-        return name_;
+    public int hashCode()
+    {
+        return Objects.hash(id_);
+    }
+
+    @Override
+    public String toString()
+    {
+        return getName();
     }
 }

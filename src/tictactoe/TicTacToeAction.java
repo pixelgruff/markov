@@ -1,5 +1,7 @@
 package tictactoe;
 
+import java.util.Objects;
+
 import core.Action;
 import utils.Validate;
 import utils.Vector2;
@@ -26,9 +28,31 @@ public class TicTacToeAction extends Action
     {
         return position_;
     }
-    
+
     public TicTacToeMark getMark()
     {
         return mark_;
+    }
+
+    @Override
+    public boolean equals(final Object other)
+    {
+        if(!(other instanceof TicTacToeAction))
+        {
+            return false;
+        }
+        if(other == this)
+        {
+            return true;
+        }
+
+        final TicTacToeAction action = (TicTacToeAction) other;
+        return Objects.equals(position_, action.position_) && Objects.equals(mark_, action.mark_);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(position_, mark_);
     }
 }

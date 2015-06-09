@@ -92,7 +92,7 @@ public class TicTacToeGame extends Game<TicTacToeAction, TicTacToeState>
     }
 
     @Override
-    public void takeAction(Player player, TicTacToeAction action)
+    public void takeAction(final Player player, final TicTacToeAction action)
     {
         // Log or save the old state?
 
