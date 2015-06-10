@@ -6,7 +6,7 @@ package core;
  */
 public interface State<T extends Action>
 {
-    abstract public boolean isTerminal();
+    public boolean isTerminal();
 
-    abstract public Score applyAction(final T action);
+    public Score applyAction(final T action);
 }

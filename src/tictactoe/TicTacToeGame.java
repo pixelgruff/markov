@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package tictactoe;
 
 import core.Game;
@@ -87,6 +82,14 @@ public class TicTacToeGame extends Game<TicTacToeAction, TicTacToeState>
                 .filter(playerToMark -> playerToMark.getValue() == currentMark_).findFirst()
                 .map(playerToMark -> playerToMark.getKey()).orElse(null);
     }
+    
+
+    @Override
+    public Player getCurrentPlayer(TicTacToeState currentState)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
     @Override
     public Collection<TicTacToeAction> getActions(final Player player)
@@ -102,20 +105,40 @@ public class TicTacToeGame extends Game<TicTacToeAction, TicTacToeState>
     {
         // Log or save the old state?
 
-        Validate.isTrue(playersToMarks_.get(player) == currentMark_, "Cannot take an action for " + player + "; it's not your turn!");
+        Validate.isTrue(getMarkForPlayer(player) == currentMark_, "Cannot take an action for " + player + "; it's not your turn!");
         Validate.isTrue(getActions(player).contains(action), "Cannot take action " + action + "; it simply isn't possible");
         // Mark the board
         final Score scoreOfAction = state_.applyAction(action);
         final Score previousScore = getPlayerScore(player);
         scores_.put(player, scoreOfAction.add(previousScore));
 
-        // Swap the current mark
+        /*
+         * Swap the current mark. Ideally this would be done with some kind of
+         * cyclic iterator
+         */
         currentMark_ = (currentMark_ == TicTacToeMark.X) ? TicTacToeMark.O : TicTacToeMark.X;
     }
 
     @Override
     public boolean isOver()
     {
-        return state_.isTerminal();
+        return isOver(state_);
     }
+    
+    @Override
+    public boolean isOver(final TicTacToeState state)
+    {
+        return state == null || state.isTerminal();
+    }
+
+    @Override
+    public TicTacToeState simulate(final Player player, final TicTacToeState currentState)
+    {
+        Validate.notNull(currentState, "Cannot simulate from a null initial state");
+        
+        
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

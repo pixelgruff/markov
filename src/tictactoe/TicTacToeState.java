@@ -46,6 +46,7 @@ public class TicTacToeState implements State<TicTacToeAction>
                      */
                     continue;
                 }
+                
                 final Vector2 unitVector = new Vector2(dX, dY);
                 /*
                  * Only append if we don't already contain our inverse (vector
@@ -91,10 +92,10 @@ public class TicTacToeState implements State<TicTacToeAction>
         return emptySquares;
     }
 
+    @Override
     public Score applyAction(final TicTacToeAction action)
     {
         Validate.isFalse(terminal_, "Cannot make a move for a state that is already terminal!");
-
         Validate.notNull(action, "Cannot apply a null action to a TicTacToeBoard");
         final TicTacToeMark mark = action.getMark();
         Validate.notNull(mark, "Cannot apply a null mark to a TicTacToeBoard");
@@ -103,7 +104,7 @@ public class TicTacToeState implements State<TicTacToeAction>
         actions_.add(action);
 
         final boolean won = isWinningMove(position, mark);
-        terminal_ = (actions_.size() == board_.getTotalPossibleMoves()) || won;
+        terminal_ = won || (actions_.size() == board_.getTotalPossibleMoves());
         return won ? new Score(1) : new Score(0);
     }
 

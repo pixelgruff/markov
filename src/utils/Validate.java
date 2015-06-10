@@ -1,5 +1,7 @@
 package utils;
 
+import java.util.Collection;
+
 /**
  * Poor-man's Apache Validation.
  * 
@@ -18,7 +20,8 @@ public final class Validate
     }
 
     /**
-     * Checks to see if the provided assertion is true.
+     * Validates that the provided assertion is true. Throws an
+     * IllegalArgumentException if it is not.
      * 
      * @param assertion
      *            Checks the assertion for truthiness
@@ -31,7 +34,8 @@ public final class Validate
     }
 
     /**
-     * Checks to see if the provided assertion is true.
+     * Validates that the provided assertion is true. Throws an
+     * IllegalArgumentException if it is not.
      * 
      * @param assertion
      *            Assertion to check for truthiness
@@ -43,9 +47,10 @@ public final class Validate
     {
         failIfTrue(!assertion, message);
     }
-    
+
     /**
-     * Checks to see if the provided assertion is false.
+     * Validates that the provided assertion is false. Throws an
+     * IllegalArgumentException if it is not.
      * 
      * @param assertion
      *            Checks the assertion for truthiness
@@ -58,7 +63,8 @@ public final class Validate
     }
 
     /**
-     * Checks to see if the provided assertion is false.
+     * Validates that the provided assertion is false. Throws an
+     * IllegalArgumentException if it is not.
      * 
      * @param assertion
      *            Assertion to check for truthiness
@@ -72,7 +78,63 @@ public final class Validate
     }
 
     /**
-     * Checks to see if the provided value is null.
+     * Validates that the collection provided is either null or empty. Throws an
+     * IllegalArgumentException if it is not.
+     * 
+     * @param collection
+     *            Collection to check
+     * 
+     */
+    public static <T> void isEmpty(final Collection<T> collection)
+    {
+        isEmpty(collection, "Collection was not empty");
+    }
+
+    /**
+     * Validates that the collection provided is either null or empty. Throws an
+     * IllegalArgumentException if it is not.
+     * 
+     * @param collection
+     *            Collection to check
+     * @param message
+     *            Optional message to add to the IllegalArgumentException, if
+     *            thrown
+     */
+    public static <T> void isEmpty(final Collection<T> collection, final String message)
+    {
+        failIfTrue(collection != null && !collection.isEmpty(), message);
+    }
+
+    /**
+     * Validates that the collection provided is either not null and not empty.
+     * Throws an IllegalArgumentException if it is not.
+     * 
+     * @param collection
+     *            Collection to check
+     */
+    public static <T> void notEmpty(final Collection<T> collection)
+    {
+        notEmpty(collection, "Collection was empty");
+    }
+
+    /**
+     * Validates that the collection provided is either not null and not empty.
+     * Throws an IllegalArgumentException if it is not.
+     * 
+     * @param collection
+     *            Collection to check
+     * @param message
+     *            Optional message to add to the IllegalArgumentException, if
+     *            thrown
+     */
+    public static <T> void notEmpty(final Collection<T> collection, final String message)
+    {
+        failIfTrue(collection == null || collection.isEmpty(), message);
+    }
+
+    /**
+     * Validates that the object provided is not null. Throws an
+     * IllegalArgumentException if it is not.
      * 
      * @param value
      *            Value to check for null-ness
@@ -83,7 +145,8 @@ public final class Validate
     }
 
     /**
-     * Checks to see if the provided value is null.
+     * Validates that the object provided is not null. Throws an
+     * IllegalArgumentException if it is not.
      * 
      * @param value
      *            Value to check for null-ness
@@ -96,7 +159,6 @@ public final class Validate
         failIfTrue(value == null, message);
     }
 
-    
     /**
      * Checks to see if the provided value is not null.
      * 
@@ -121,8 +183,10 @@ public final class Validate
     {
         failIfTrue(value != null, message);
     }
+
     /**
-     * Checks to see if value is within the open interval [min, max]
+     * Validates that the value is within the open interval [min, max]. Throws
+     * an IllegalArgumentException if it is not.
      * 
      * Note: This method should auto-box & unbox pretty much any valid numeric
      * argument

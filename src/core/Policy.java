@@ -12,5 +12,5 @@ import java.util.Collection;
  */
 public interface Policy<A extends Action, S extends State<A>>
 {
-    public abstract A chooseAction(S state, Collection<A> actions);
+    public A chooseAction(S state, Collection<A> actions);
 }

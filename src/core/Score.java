@@ -1,5 +1,7 @@
 package core;
 
+import java.util.Objects;
+
 import utils.Validate;
 
 /**
@@ -41,7 +43,7 @@ public class Score implements Comparable<Score>
     }
 
     @Override
-    public int compareTo(Score other)
+    public int compareTo(final Score other)
     {
         if(other == null)
         {
@@ -49,5 +51,33 @@ public class Score implements Comparable<Score>
         }
 
         return Double.compare(getValue(), other.getValue());
+    }
+
+    @Override
+    public String toString()
+    {
+        return String.format("%.2f", getValue());
+    }
+
+    @Override
+    public boolean equals(final Object other)
+    {
+        if(!(other instanceof Score))
+        {
+            return false;
+        }
+        if(other == this)
+        {
+            return true;
+        }
+
+        final Score score = (Score) other;
+        return Objects.equals(getValue(), score.getValue());
+    }
+    
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(getValue());
     }
 }

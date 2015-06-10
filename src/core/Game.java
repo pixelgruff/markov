@@ -10,36 +10,52 @@ import utils.Validate;
  *
  * @author Ginger The Game interface guarantees Markov Decision Process-like
  *         functionality for subroutines requesting information about the game.
- * @param <S>
  * @param <A>
+ *            Action type that the game operates on
+ * @param <S>
+ *            State type that the game exposes to Players
  */
 public abstract class Game<A extends Action, S extends State<A>>
 {
-
     final protected List<Player> players_;
 
+    /**
+     * Note: All games require at least one player.
+     * 
+     * @param players
+     *            Ordered list of players that will partake in the game.
+     */
     public Game(final List<Player> players)
     {
-        Validate.notNull(players, "Cannot create a Game with a null player list");
-        Validate.isFalse(players.isEmpty(), "Cannot create a Game without any players!");
+        Validate.notEmpty(players, "Cannot create a game with a null/empty list of Players");
         // Take a copy - never trust anyone ever
         players_ = new ArrayList<Player>(players);
     }
-    
+
     public Collection<Player> getPlayers()
     {
         return new ArrayList<Player>(players_);
     }
 
-    abstract public Player getCurrentPlayer();
+    public abstract Player getCurrentPlayer();
+    
+    public abstract Player getCurrentPlayer(final S state);
 
-    abstract public S getState(final Player player);
+    public abstract S getState(final Player player);
 
-    abstract public Score getPlayerScore(final Player player);
+    public abstract Score getPlayerScore(final Player player);
 
-    abstract public Collection<A> getActions(final Player player);
+    public abstract Collection<A> getActions(final Player player);
 
-    abstract public void takeAction(final Player player, final A action);
+    public abstract void takeAction(final Player player, final A action);
 
-    abstract public boolean isOver();
+    public abstract boolean isOver();
+    
+    public abstract boolean isOver(final S state);
+
+    public S simulate(final Player player, final S currentState)
+    {
+        
+        return null;
+    }
 }
