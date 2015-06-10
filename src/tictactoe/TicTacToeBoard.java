@@ -123,7 +123,7 @@ public class TicTacToeBoard
         return nInARow_;
     }   
 
-    public Map<Vector2, TicTacToeMark> getBoardStateAsMap()
+    public Map<Vector2, TicTacToeMark> getBoardAsMap()
     {
         return new HashMap<Vector2, TicTacToeMark>(board_);
     }

@@ -55,4 +55,10 @@ public class TicTacToeAction extends Action
     {
         return Objects.hash(position_, mark_);
     }
+    
+    @Override
+    public String toString()
+    {
+        return String.format("%s:%s", mark_, position_);
+    }
 }

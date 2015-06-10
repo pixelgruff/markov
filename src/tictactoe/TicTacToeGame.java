@@ -53,8 +53,13 @@ public class TicTacToeGame extends Game<TicTacToeAction, TicTacToeState>
     {
         /*
          * Players have access to all in-game information (but by copy. Those
-         * nefarious players, you never know what they might do
+         * nefarious players, you never know what they might do)
          */
+        return getState();
+    }
+    
+    public TicTacToeState getState()
+    {
         return new TicTacToeState(state_);
     }
     

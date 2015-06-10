@@ -34,11 +34,18 @@ public class TicTacToeState implements State<TicTacToeAction>
     private static final Collection<Vector2> PATHS = new ArrayList<Vector2>(ITERABLE_PATH_COUNT);
     static
     {
-        // Initialize our directions
         for(int dX = -1; dX <= 1; ++dX)
         {
             for(int dY = -1; dY <= 1; ++dY)
             {
+                if(dX == 0 && dY == 0)
+                {
+                    /*
+                     * These directions specify actual "movement", which a
+                     * 0-direction vector does not have...
+                     */
+                    continue;
+                }
                 final Vector2 unitVector = new Vector2(dX, dY);
                 /*
                  * Only append if we don't already contain our inverse (vector
@@ -76,7 +83,7 @@ public class TicTacToeState implements State<TicTacToeAction>
     public List<Vector2> getAvailablePositions()
     {
         final List<Vector2> emptySquares = new ArrayList<Vector2>();
-        board_.getBoardStateAsMap().entrySet().stream()
+        board_.getBoardAsMap().entrySet().stream()
                 .filter(boardEntry -> boardEntry.getValue() == null)
                 .map(boardEntry -> boardEntry.getKey())
                 .forEach(position -> emptySquares.add(position));

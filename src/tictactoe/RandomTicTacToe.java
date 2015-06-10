@@ -33,8 +33,10 @@ public class RandomTicTacToe
                 .collect(Collectors.toList()));
         new Client<TicTacToeAction, TicTacToeState, TicTacToeGame>().play(tictactoe, policies);
 
-        System.out.println("Game over.");
+        final Player winner = tictactoe.getPlayers().stream().max((player1, player2) -> tictactoe.getPlayerScore(player1).compareTo(tictactoe.getPlayerScore(player2))).orElse(null);
+        
+        System.out.println(String.format("Game over. %s (%s) wins!", winner, tictactoe.getMarkForPlayer(winner)));
         // wat
-        System.out.println(tictactoe.getState((Player) policies.keySet().toArray()[0]));
+        System.out.println(tictactoe.getState());
     }
 }

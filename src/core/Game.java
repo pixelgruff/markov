@@ -25,6 +25,11 @@ public abstract class Game<A extends Action, S extends State<A>>
         // Take a copy - never trust anyone ever
         players_ = new ArrayList<Player>(players);
     }
+    
+    public Collection<Player> getPlayers()
+    {
+        return new ArrayList<Player>(players_);
+    }
 
     abstract public Player getCurrentPlayer();
 
