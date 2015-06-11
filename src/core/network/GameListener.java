@@ -26,11 +26,10 @@ public class GameListener implements Runnable
     {
         try
         {
-            Socket socket = serverSocket_.accept();
-            
+            final Socket socket = serverSocket_.accept();
+
             // TODO: Loop + read json + do other stuff
-            
-            
+
         }
         catch(IOException e)
         {

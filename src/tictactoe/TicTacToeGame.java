@@ -72,7 +72,14 @@ public class TicTacToeGame extends Game<TicTacToeAction, TicTacToeState>
     @Override
     public Player getCurrentPlayer()
     {
-        if(isOver())
+        return getCurrentPlayer(state_);
+    }
+    
+
+    @Override
+    public Player getCurrentPlayer(TicTacToeState currentState)
+    {
+        if(isOver(currentState))
         {
             return null;
         }
@@ -81,14 +88,6 @@ public class TicTacToeGame extends Game<TicTacToeAction, TicTacToeState>
         return playersToMarks_.entrySet().stream()
                 .filter(playerToMark -> playerToMark.getValue() == currentMark_).findFirst()
                 .map(playerToMark -> playerToMark.getKey()).orElse(null);
-    }
-    
-
-    @Override
-    public Player getCurrentPlayer(TicTacToeState currentState)
-    {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     @Override
@@ -135,8 +134,6 @@ public class TicTacToeGame extends Game<TicTacToeAction, TicTacToeState>
     public TicTacToeState simulate(final Player player, final TicTacToeState currentState)
     {
         Validate.notNull(currentState, "Cannot simulate from a null initial state");
-        
-        
         // TODO Auto-generated method stub
         return null;
     }
