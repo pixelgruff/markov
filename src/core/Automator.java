@@ -4,7 +4,10 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- *
+ * TODO: Turn this into an interface with some nice, hefty functions to
+ * manipulate game state. This way, we can implement an in-memory Automator
+ * (offline) and have the game server itself be an automator.
+ * 
  * @author Ginger Client initializes the Game and Player objects and holds the
  *         primary game loop.
  * @param <S>
