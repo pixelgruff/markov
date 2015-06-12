@@ -27,7 +27,7 @@ public class GameListener implements Runnable
         try
         {
             final Socket socket = serverSocket_.accept();
-
+            
             // TODO: Loop + read json + do other stuff
 
         }
