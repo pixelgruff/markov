@@ -4,10 +4,10 @@ import core.Automator;
 import core.Player;
 import core.Policy;
 import core.policies.RandomPolicy;
+import java.util.ArrayList;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -22,20 +22,22 @@ public class TicTacToeTest
 {
     public static void main(String[] args)
     {
-        final Map<Player, Policy<TicTacToeAction, TicTacToeState>> policies = new HashMap<>();
+        final Map<Player, Policy<TicTacToeState, TicTacToeAction>> policies = new HashMap<>();
         policies.put(new Player("Player 1"), new RandomPolicy<>());
         policies.put(new Player("Player 2"), new RandomPolicy<>());
 
-        // Create the game
-        final TicTacToeGame game = new TicTacToeGame(policies.keySet().stream()
-                .collect(Collectors.toList()));
+        /**
+         * Not wild about an Automator returning a "winner"; but we might want
+         * it to return all manner of things-- state histories, score mappings,
+         * etc.  Food for thought.
+         * */
+        final Automator<TicTacToeAction, TicTacToeState, TicTacToeRules> ticTacToeAutomator = new Automator<>();
+        /* Note that these players are not added in any guaranteed order */
+        final TicTacToeState initialState = new TicTacToeState(new ArrayList<Player>(policies.keySet()));
+        final Player best = ticTacToeAutomator.play(new TicTacToeRules(), initialState, policies);
 
-        final Automator<TicTacToeAction, TicTacToeState, TicTacToeGame> ticTacToeAutomator = new Automator<>();
-        final Player winner = ticTacToeAutomator.play(game, policies);
-
-        System.out.println(String.format("Game over. %s (%s) wins!", winner,
-                game.getMarkForPlayer(winner)));
-
-        System.out.println(game.getState());
+        /* 'best' may hold a player that tied for first */
+        System.out.println(String.format("Game over. %s (%s) won or tied.", best,
+                initialState.getMarkForPlayer(best)));
     }
 }
