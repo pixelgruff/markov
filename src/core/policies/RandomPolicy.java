@@ -7,16 +7,20 @@ import java.util.concurrent.ThreadLocalRandom;
 import core.Action;
 import core.Policy;
 import core.State;
+import utils.Validate;
 
-public class RandomPolicy<A extends Action, S extends State<A>> implements Policy<A, S>
+public class RandomPolicy<S extends State, A extends Action> implements Policy<S, A>
 {
     @Override
     public A chooseAction(S state, Collection<A> actions)
     {
-        if(actions.isEmpty())
-        {
-            return null;
-        }
+        /** 
+         * Action list should never be empty.  If the game is "stuck" and a 
+         * player cannot take any actions, this should be handled in rules
+         * either by a) making "pass" an action or b) declaring the game over
+         * beforehand
+        */
+        Validate.notEmpty(actions, "Policies should always have at least one action to select from.");
         return new ArrayList<>(actions).get(ThreadLocalRandom.current().nextInt(actions.size()));
     }
 }
