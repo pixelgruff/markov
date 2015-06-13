@@ -16,7 +16,7 @@ public class TicTacToeAction implements Action
     private final Vector2 position_;
     private final TicTacToeMark mark_;
 
-    TicTacToeAction(final Vector2 position, final TicTacToeMark mark)
+    public TicTacToeAction(final Vector2 position, final TicTacToeMark mark)
     {
         Validate.notNull(position, "Cannot create a TicTacToeAction with a null position");
         Validate.notNull(mark, "Cannot create a TicTacToeAction with a null mark");

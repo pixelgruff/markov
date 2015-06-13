@@ -32,6 +32,11 @@ public class TicTacToeState implements State<TicTacToeAction>
      * representing the x axis, the y axis, the line y = x, and the line y = -x
      */
     private static final Collection<Vector2> PATHS = new ArrayList<Vector2>(ITERABLE_PATH_COUNT);
+
+    /*
+     * Static-initialize our PATHS (should never *ever* be modified outside of
+     * this block, only read from
+     */
     static
     {
         for(int dX = -1; dX <= 1; ++dX)
@@ -46,7 +51,7 @@ public class TicTacToeState implements State<TicTacToeAction>
                      */
                     continue;
                 }
-                
+
                 final Vector2 unitVector = new Vector2(dX, dY);
                 /*
                  * Only append if we don't already contain our inverse (vector
@@ -70,9 +75,42 @@ public class TicTacToeState implements State<TicTacToeAction>
     public TicTacToeState(final TicTacToeState copy)
     {
         Validate.notNull(copy, "Cannot create a copy of a null TicTacToeState");
-        board_ = new TicTacToeBoard(copy.board_);
-        actions_ = new LinkedList<TicTacToeAction>(copy.actions_);
+        board_ = copy.getBoard();
+        actions_ = copy.getActions();
         terminal_ = copy.terminal_;
+    }
+
+    /**
+     * Utility method for creating Streaming instances of TicTacToeState for
+     * network transmission
+     * 
+     * @param board
+     *            A valid reference to a game board
+     * @param isTerminal
+     *            Whether or not the state is terminal
+     * @param actions
+     *            The list of actions completed thus-far
+     */
+    public TicTacToeState(final TicTacToeBoard board, final boolean isTerminal,
+            final List<TicTacToeAction> actions)
+    {
+        board_ = new TicTacToeBoard(board);
+        terminal_ = isTerminal;
+        actions_ = new LinkedList<TicTacToeAction>(actions);
+    }
+
+    /*
+     * TODO: Should getBoard() and getActions() be moved to be defined at the
+     * interface level?
+     */
+    public TicTacToeBoard getBoard()
+    {
+        return new TicTacToeBoard(board_);
+    }
+
+    public List<TicTacToeAction> getActions()
+    {
+        return new LinkedList<TicTacToeAction>(actions_);
     }
 
     @Override
@@ -132,7 +170,6 @@ public class TicTacToeState implements State<TicTacToeAction>
             {
                 return true;
             }
-
         }
         return false;
     }

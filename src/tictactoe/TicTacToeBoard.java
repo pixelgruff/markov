@@ -91,6 +91,33 @@ public class TicTacToeBoard
         board_ = new HashMap<Vector2, TicTacToeMark>(copy.board_);
     }
 
+    /**
+     * This constructor should only be used for streaming over the network
+     * 
+     * @param width
+     *            Width of the board
+     * @param height
+     *            Height of the board
+     * @param nInARow
+     *            Number of consecutive moves to win
+     * @param board
+     *            Mapping of existing positions to marks
+     */
+    public TicTacToeBoard(final int width, final int height, final int nInARow,
+            final Map<Vector2, TicTacToeMark> board)
+    {
+        this(width, height, nInARow);
+        Validate.notNull(board, "Cannot create a TicTacToeBoard with a null board mapping");
+        for(final Map.Entry<Vector2, TicTacToeMark> entry : board.entrySet())
+        {
+            final Vector2 position = entry.getKey();
+            final TicTacToeMark mark = entry.getValue();
+            Validate.isTrue(board_.containsKey(position), String.format(
+                    "Cannot create a board with an invalid mapping (%s, %s)", position, mark));
+            board_.put(position, mark);
+        }
+    }
+
     private void initializeBoard()
     {
         for(int i = 0; i < width_; ++i)
@@ -112,16 +139,16 @@ public class TicTacToeBoard
     {
         return height_;
     }
-    
+
     public int getTotalPossibleMoves()
     {
         return board_.size();
     }
-    
+
     public int getContiguousMovesToWin()
     {
         return nInARow_;
-    }   
+    }
 
     public Map<Vector2, TicTacToeMark> getBoardAsMap()
     {
