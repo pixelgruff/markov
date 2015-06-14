@@ -9,17 +9,21 @@ import java.util.Map;
  * (offline) and have the game server itself be an automator.
  *
  * @author Ginger Client initializes the Game and Player objects and holds the
- * primary game loop.
+ *         primary game loop.
  * @param <S>
  * @param <A>
  * @param <R>
  */
-public class Automator<A extends Action, S extends State, R extends Rules<S, A>> {
+public class Automator<A, S, R extends Rules<S, A>>
+{
 
-    public Player play(final R rules, S state, final Map<Player, Policy<S, A>> policies) {
-        while (!rules.isTerminal(state)) {
+    public Player play(final R rules, S state, final Map<Player, Policy<S, A>> policies)
+    {
+        while(!rules.isTerminal(state))
+        {
             final Player player = rules.getCurrentPlayer(state);
-            // TODO: State cannot be set to a filtered state; we'll bleed information over time!
+            // TODO: State cannot be set to a filtered state; we'll bleed
+            // information over time!
             final S knownState = rules.filterState(state, player);
             final Collection<A> actions = rules.getAvailableActions(player, state);
             final A action = policies.get(player).chooseAction(knownState, actions);
@@ -35,10 +39,7 @@ public class Automator<A extends Action, S extends State, R extends Rules<S, A>>
         return policies
                 .keySet()
                 .stream()
-                .max((player1, player2)
-                        -> Double.compare(
-                                rules.score(terminalState, player1),
-                                rules.score(terminalState, player2))
-                ).orElse(null);
+                .max((player1, player2) -> rules.score(terminalState, player1).compareTo(
+                        rules.score(terminalState, player2))).orElse(null);
     }
 }

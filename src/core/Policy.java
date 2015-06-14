@@ -10,7 +10,7 @@ import java.util.Collection;
  * @param <A>
  *            Action type for the game
  */
-public interface Policy<S extends State, A extends Action>
+public interface Policy<S, A>
 {
     public A chooseAction(S state, Collection<A> actions);
 }

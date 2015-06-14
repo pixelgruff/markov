@@ -1,7 +1,7 @@
 package tictactoe;
 
 import core.Player;
-import core.State;
+import core.Score;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import utils.Validate;
 import utils.Vector2;
 
-public class TicTacToeState implements State {
+public class TicTacToeState {
 
     private static final int DEFAULT_TIC_TAC_TOE_SIZE = 3;
 
@@ -28,9 +28,9 @@ public class TicTacToeState implements State {
     /* Keep track of which player uses which mark */
     private final Map<Player, TicTacToeMark> playerMarks_;
     /* Keep track of player scores */
-    private final Map<Player, Double> playerScores_;
+    private final Map<Player, Score> playerScores_;
     /* Keep track of the current player */
-    public Player currentPlayer;
+    private Player currentPlayer_;
     /* Keep track of the number of marks placed on the board */
     private int marksPlaced_ = 0;
     private boolean isTerminal_ = false;
@@ -78,7 +78,7 @@ public class TicTacToeState implements State {
         /* Assign marks to players in the order they appear */
         playerMarks_ = new HashMap<Player, TicTacToeMark>(players.size());
         /* Assign initial scores to players */
-        playerScores_ = new HashMap<Player, Double>(players.size());
+        playerScores_ = new HashMap<Player, Score>(players.size());
         /* Maps are annoying to initialize; also, Java needs a bidirectional 
         Map so much */
         Validate.isTrue(TicTacToeMark.values().length == players.size(), String.format(
@@ -86,15 +86,10 @@ public class TicTacToeState implements State {
                 + "Got: %d players, %d marks.", players.size(), TicTacToeMark.values().length));
         for (int i = 0; i < players.size(); i++) {
             playerMarks_.put(players.get(i), TicTacToeMark.values()[i]);
-            /* 
-            We place null rather than 0 because initial scoring values should
-            be a decision made in the rules, rather than inherent to the state
-            */
-            playerScores_.put(players.get(i), null);
         }
         /* The rules should determine what player goes first, so we initialize
          currentPlayer_ to null */
-        currentPlayer = null;
+        currentPlayer_ = null;
     }
 
     /**
@@ -112,7 +107,7 @@ public class TicTacToeState implements State {
 
         board_ = new HashMap<Vector2, TicTacToeMark>(copy.board_);
         playerMarks_ = new HashMap<Player, TicTacToeMark>(copy.playerMarks_);
-        playerScores_ = new HashMap<Player, Double>(copy.playerScores_);
+        playerScores_ = new HashMap<Player, Score>(copy.playerScores_);
     }
 
     private void initializeBoard() {
@@ -147,12 +142,12 @@ public class TicTacToeState implements State {
         return matchingPlayers.get(0).getKey();
     }
     
-    public void setScore(final Player player, final double score) {
+    public void setScore(final Player player, final Score score) {
         playerScores_.put(player, score);
     }
     
-    public Double getPlayerScore(final Player player) {
-        return playerScores_.get(player);
+    public Score getPlayerScore(final Player player) {
+        return playerScores_.getOrDefault(player, new Score());
     }
     
     public void makeTerminal() {
@@ -178,6 +173,17 @@ public class TicTacToeState implements State {
     /* Get the number of actions taken to have arrived at this state */
     public int getNumberOfActionsTaken() {
         return marksPlaced_;
+    }
+    
+    public Player getCurrentPlayer()
+    {
+        return currentPlayer_;
+    }
+    
+    public void setCurrentPlayer(final Player player)
+    {
+        // TODO: Validate ?
+        currentPlayer_ = player;
     }
 
     public Map<Vector2, TicTacToeMark> getBoardAsMap() {
@@ -231,15 +237,12 @@ public class TicTacToeState implements State {
         playerMarks_.keySet().forEach((player) -> {
             builder.append(player.toString());
             builder.append(
-                    String.format(" (%s) %.0f %s",
+                    String.format(" (%s) %s %s",
                             getMarkForPlayer(player).toString(),
                             /* Player score if player != null and score != null */
-                            (currentPlayer != null) ? 
-                                    (getPlayerScore(player) != null ? 
-                                            getPlayerScore(player) : 0.0) 
-                                    : 0.0,
+                                    getPlayerScore(player),
                             /* Special string if player != null and player is current */
-                            (currentPlayer != null && currentPlayer.equals(player)
+                            (currentPlayer_ != null && currentPlayer_.equals(player)
                                     ? " (current)" : ""))
             );
             builder.append(System.lineSeparator());

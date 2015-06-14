@@ -9,7 +9,7 @@ import utils.Validate;
  */
 public class Score implements Comparable<Score>
 {
-    private double value_;
+    private final double value_;
 
     public Score()
     {

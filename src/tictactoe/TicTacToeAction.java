@@ -2,7 +2,6 @@ package tictactoe;
 
 import java.util.Objects;
 
-import core.Action;
 import utils.Validate;
 import utils.Vector2;
 
@@ -11,7 +10,7 @@ import utils.Vector2;
  * @author Ginger Represent a single point on the tic-tac-toe board where a
  *         player might place their mark.
  */
-public class TicTacToeAction implements Action
+public class TicTacToeAction
 {
     private final Vector2 position_;
     private final TicTacToeMark mark_;
