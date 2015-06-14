@@ -10,7 +10,7 @@ import utils.Validate;
 public class RandomPolicy<S, A> implements Policy<S, A>
 {
     @Override
-    public A chooseAction(S state, Collection<A> actions)
+    public A chooseAction(final S state, final Collection<A> actions)
     {
         /**
          * Action list should never be empty. If the game is "stuck" and a

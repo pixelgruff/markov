@@ -14,6 +14,12 @@ public class TicTacToeAction
 {
     private final Vector2 position_;
     private final TicTacToeMark mark_;
+    
+    private TicTacToeAction()
+    {
+        position_ = null;
+        mark_ = null;
+    }
 
     public TicTacToeAction(final Vector2 position, final TicTacToeMark mark)
     {
@@ -39,10 +45,6 @@ public class TicTacToeAction
         if(!(other instanceof TicTacToeAction))
         {
             return false;
-        }
-        if(other == this)
-        {
-            return true;
         }
 
         final TicTacToeAction action = (TicTacToeAction) other;

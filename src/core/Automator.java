@@ -16,7 +16,6 @@ import java.util.Map;
  */
 public class Automator<A, S, R extends Rules<S, A>>
 {
-
     public Player play(final R rules, S state, final Map<Player, Policy<S, A>> policies)
     {
         while(!rules.isTerminal(state))

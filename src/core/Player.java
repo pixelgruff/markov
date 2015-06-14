@@ -17,6 +17,12 @@ public class Player implements Comparable<Player>
      */
     private final UUID id_;
     private final String name_;
+    
+    /* We need default constructors in order to serialize our data via Jackson */
+    private Player()
+    {
+        this("anonymous");
+    }
 
     public Player(final String name)
     {

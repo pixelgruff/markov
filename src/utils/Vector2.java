@@ -27,6 +27,11 @@ public final class Vector2
         x_ = x;
         y_ = y;
     }
+    
+    public Vector2()
+    {
+        this(0, 0);
+    }
 
     /**
      * Creates a copy of the specified Vector2.
