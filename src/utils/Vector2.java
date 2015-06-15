@@ -78,6 +78,21 @@ public final class Vector2
     }
 
     /**
+     * Subtracts the two vectors, returning the result.
+     *
+     * Note: Does not modify either Vector2.
+     *
+     * @param other
+     *            Non-null Vector2 to subtract
+     * @return A new Vector2 representing the result of the subtraction.
+     */
+    public Vector2 subtract(final Vector2 other)
+    {
+        Validate.notNull(other, "Cannot subtract a null vector");
+        return new Vector2(x_ - other.x_, y_ - other.y_);
+    }
+
+    /**
      * Multiplies the two vectors together, returning the result.
      *
      * Note: Does not modify either Vector2.
