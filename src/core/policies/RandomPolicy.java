@@ -22,4 +22,10 @@ public class RandomPolicy<S, A> implements Policy<S, A>
                 "Policies should always have at least one action to select from.");
         return new ArrayList<>(actions).get(ThreadLocalRandom.current().nextInt(actions.size()));
     }
+
+    @Override
+    public String toString()
+    {
+        return "Random";
+    }
 }

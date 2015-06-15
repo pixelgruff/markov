@@ -27,7 +27,7 @@ public final class Vector2
         x_ = x;
         y_ = y;
     }
-    
+
     public Vector2()
     {
         this(0, 0);
@@ -91,7 +91,7 @@ public final class Vector2
         Validate.notNull(other, "Cannot multiply a null vector");
         return new Vector2(x_ * other.x_, y_ * other.y_);
     }
-    
+
     /**
      * Performs scalar multiplication on the Vector2
      * 
@@ -113,14 +113,6 @@ public final class Vector2
     @Override
     public boolean equals(Object obj)
     {
-        if(this == obj)
-        {
-            return true;
-        }
-        if(obj == null)
-        {
-            return false;
-        }
         if(obj instanceof Vector2)
         {
             Vector2 other = (Vector2) obj;
