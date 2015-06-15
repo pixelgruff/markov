@@ -17,8 +17,6 @@ import utils.Vector2;
 
 public class TicTacToeState
 {
-    private static final int DEFAULT_TIC_TAC_TOE_SIZE = 3;
-
     private int width_;
     private int height_;
     /*
@@ -45,17 +43,6 @@ public class TicTacToeState
     @SuppressWarnings("unused")
     private TicTacToeState()
     {
-    }
-
-    /**
-     * Generates a TicTacToe board of default size (3x3) for your pleasure.
-     * 
-     * @param players
-     *            The Player objects who will be "playing" the game
-     */
-    public TicTacToeState(final Collection<Player> players)
-    {
-        this(players, DEFAULT_TIC_TAC_TOE_SIZE);
     }
 
     /**
