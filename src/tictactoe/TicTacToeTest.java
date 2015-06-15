@@ -4,7 +4,6 @@ import core.Automator;
 import core.Player;
 import core.Policy;
 import core.policies.RandomPolicy;
-import java.util.ArrayList;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,11 +28,11 @@ public class TicTacToeTest
         /**
          * Not wild about an Automator returning a "winner"; but we might want
          * it to return all manner of things-- state histories, score mappings,
-         * etc.  Food for thought.
+         * etc. Food for thought.
          * */
-        final Automator<TicTacToeAction, TicTacToeState, TicTacToeRules> ticTacToeAutomator = new Automator<>();
+        final Automator<TicTacToeState, TicTacToeAction, TicTacToeRules> ticTacToeAutomator = new Automator<>();
         /* Note that these players are not added in any guaranteed order */
-        final TicTacToeState initialState = new TicTacToeState(new ArrayList<Player>(policies.keySet()));
+        final TicTacToeState initialState = new TicTacToeState(policies.keySet());
         final Player best = ticTacToeAutomator.play(new TicTacToeRules(), initialState, policies);
 
         /* 'best' may hold a player that tied for first */

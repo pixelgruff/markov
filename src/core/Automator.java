@@ -14,7 +14,7 @@ import java.util.Map;
  * @param <A>
  * @param <R>
  */
-public class Automator<A, S, R extends Rules<S, A>>
+public class Automator<S, A, R extends Rules<S, A>>
 {
     public Player play(final R rules, S state, final Map<Player, Policy<S, A>> policies)
     {

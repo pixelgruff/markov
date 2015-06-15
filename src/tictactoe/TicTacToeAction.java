@@ -14,7 +14,11 @@ public class TicTacToeAction
 {
     private final Vector2 position_;
     private final TicTacToeMark mark_;
-    
+
+    /*
+     * We need default constructors in order to serialize our data via Jackson.
+     */
+    @SuppressWarnings("unused")
     private TicTacToeAction()
     {
         position_ = null;
@@ -56,7 +60,7 @@ public class TicTacToeAction
     {
         return Objects.hash(position_, mark_);
     }
-    
+
     @Override
     public String toString()
     {

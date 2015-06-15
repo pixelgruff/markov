@@ -2,6 +2,8 @@ package core;
 
 import java.util.Collection;
 
+import utils.ClosedRange;
+
 /**
  *
  * @author Ginger Rules holds the transition model and other game-specific logic
@@ -22,6 +24,13 @@ public interface Rules<S, A>
      * @return Resultant State
      */
     public S transition(final S state, final A action);
+
+    /**
+     * Returns the range of possible players that this ruleset supports
+     * 
+     * @return A ClosedRange of Integers representing all possible players
+     */
+    public ClosedRange<Integer> numberOfPlayers();
 
     /**
      * Calculate all the valid actions for a particular player at a particular

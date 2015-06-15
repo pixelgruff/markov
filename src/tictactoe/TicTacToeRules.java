@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import utils.ClosedRange;
 import utils.Validate;
 import utils.Vector2;
 
@@ -206,5 +207,11 @@ public class TicTacToeRules implements Rules<TicTacToeState, TicTacToeAction>
 
         }
         return false;
+    }
+
+    @Override
+    public ClosedRange<Integer> numberOfPlayers()
+    {
+        return new ClosedRange<Integer>(2, 2);
     }
 }

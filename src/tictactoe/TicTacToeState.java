@@ -42,6 +42,7 @@ public class TicTacToeState
      * Unfortunately, that either means we insert a lot of fake data, or make
      * the member variables non-final. Either way is sad :(
      */
+    @SuppressWarnings("unused")
     private TicTacToeState()
     {
     }
