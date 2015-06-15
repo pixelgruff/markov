@@ -20,7 +20,7 @@ public class ClosedRange<T extends Number & Comparable<T>> extends Range<T>
     {
         return String.format("[%d, %d]", min_, max_);
     }
-    
+
     @Override
     public boolean equals(final Object other)
     {
