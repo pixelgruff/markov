@@ -201,13 +201,15 @@ public final class Validate
      * @throws IllegalArgumentException
      *             if value is less than min or larger than max.
      */
-    public static void inOpenInterval(final Number value, final Number min, final Number max)
+    public static <T extends Number & Comparable<T>> void inOpenInterval(final T value,
+            final T min, final T max)
     {
-        notNull(value, "value cannot be null");
-        notNull(min, "min cannot be null");
-        notNull(max, "max cannot be null");
-        failIfTrue(
-                value.doubleValue() < min.doubleValue() || value.doubleValue() > max.doubleValue(),
-                String.format("%d was not within [%d, %d]", value, min, max));
+        inRange(value, new OpenRange<T>(min, max));
+    }
+    
+    public static <T extends Number & Comparable<T>> void inRange(final T value, final Range<T> range)
+    {
+        notNull(range, "Cannot determine if a value is within a null range");
+        isTrue(range.isValueWithin(value), String.format("%d was not within %s", value, range));
     }
 }

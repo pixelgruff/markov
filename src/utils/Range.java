@@ -1,5 +1,7 @@
 package utils;
 
+import java.util.Objects;
+
 public abstract class Range<T extends Number & Comparable<T>>
 {
     protected final T min_;
@@ -15,5 +17,11 @@ public abstract class Range<T extends Number & Comparable<T>>
         max_ = max;
     }
 
-    public abstract boolean isWithin(final T value);
+    public abstract boolean isValueWithin(final T value);
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(min_, max_);
+    }
 }

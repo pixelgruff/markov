@@ -26,9 +26,10 @@ public interface Rules<S, A>
     public S transition(final S state, final A action);
 
     /**
-     * Returns the range of possible players that this ruleset supports
+     * Returns the range of possible player counts (number of players) that this
+     * ruleset supports
      * 
-     * @return A ClosedRange of Integers representing all possible players
+     * @return A ClosedRange of Integers representing all possible player counts
      */
     public ClosedRange<Integer> numberOfPlayers();
 
