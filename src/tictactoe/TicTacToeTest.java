@@ -21,7 +21,6 @@ public class TicTacToeTest
 {
     public static void main(String[] args)
     {
-        final int TIC_TAC_TOE_DIMENSION = 3;
         final Map<Player, Policy<TicTacToeState, TicTacToeAction>> policies = new HashMap<>();
         policies.put(new Player("Player 1"), new RandomPolicy<>());
         policies.put(new Player("Player 2"), new RandomPolicy<>());
@@ -32,8 +31,9 @@ public class TicTacToeTest
          * etc. Food for thought.
          * */
         final Automator<TicTacToeState, TicTacToeAction, TicTacToeRules> ticTacToeAutomator = new Automator<>();
+        final TicTacToeRules rules = new TicTacToeRules();
         /* Note that these players are not added in any guaranteed order */
-        final TicTacToeState initialState = new TicTacToeState(policies.keySet(), TIC_TAC_TOE_DIMENSION);
+        final TicTacToeState initialState = rules.generateInitialState(policies.keySet());
         final Player best = ticTacToeAutomator.play(new TicTacToeRules(), initialState, policies);
 
         /* 'best' may hold a player that tied for first */

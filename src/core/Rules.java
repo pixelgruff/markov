@@ -14,6 +14,13 @@ import utils.ClosedRange;
 public interface Rules<S, A>
 {
     /**
+     * Create the default initial state for this game
+     * @param players Collection of players playing this game
+     * @return State created under initial conditions.
+     */
+    public S generateInitialState(final Collection<Player> players);
+    
+    /**
      * Calculate a new state (S') from a state-action pair (S, A) according to
      * the transition model inherent to these game rules
      * 

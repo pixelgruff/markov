@@ -23,7 +23,6 @@ public class TicTacToeRules implements Rules<TicTacToeState, TicTacToeAction>
 
     /* The default Mark that starts the game */
     private static final TicTacToeMark MARK_GOES_FIRST = TicTacToeMark.X;
-
     private static final int DEFAULT_TIC_TAC_TOE_WIN_COUNT = 3;
 
     /* Length of the path players must create with their marks to win */
@@ -213,5 +212,10 @@ public class TicTacToeRules implements Rules<TicTacToeState, TicTacToeAction>
     public ClosedRange<Integer> numberOfPlayers()
     {
         return new ClosedRange<Integer>(2, 2);
+    }
+
+    @Override
+    public TicTacToeState generateInitialState(final Collection<Player> players) {
+        return new TicTacToeState(players, DEFAULT_TIC_TAC_TOE_WIN_COUNT);
     }
 }

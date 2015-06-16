@@ -21,8 +21,6 @@ public class Automator<S, A, R extends Rules<S, A>>
         while(!rules.isTerminal(state))
         {
             final Player player = rules.getCurrentPlayer(state);
-            // TODO: State cannot be set to a filtered state; we'll bleed
-            // information over time!
             final S knownState = rules.filterState(state, player);
             final Collection<A> actions = rules.getAvailableActions(player, state);
             final A action = policies.get(player).chooseAction(knownState, actions);
