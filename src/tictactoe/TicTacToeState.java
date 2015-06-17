@@ -16,18 +16,18 @@ import core.Score;
 
 public class TicTacToeState
 {
-    private int width_;
-    private int height_;
+    private final int width_;
+    private final int height_;
     /*
      * With a map of positions to TicTacToeMarks representing the board, we can
      * have arbitrary TicTacToe boards (non-rectangular). Currently there are no
      * constructors to support this, but the fact remains - it is possible.
      */
-    private Map<Vector2, TicTacToeMark> board_;
+    private final Map<Vector2, TicTacToeMark> board_;
     /* Keep track of which player uses which mark */
-    private Map<Player, TicTacToeMark> playerMarks_;
+    private final Map<Player, TicTacToeMark> playerMarks_;
     /* Keep track of player scores */
-    private Map<Player, Score> playerScores_;
+    private final Map<Player, Score> playerScores_;
     /* Keep track of the current player */
     private Player currentPlayer_;
     /* Keep track of the number of marks placed on the board */
@@ -85,8 +85,8 @@ public class TicTacToeState
                 players.size(), TicTacToeMark.values().length));
 
         /*
-         * Maps are annoying to initialize; also, Java needs a bidirectional Map
-         * so much. Need to determine an assignment of players to marks.
+         * Java needs a bidirectional Map so much. Need to determine an
+         * assignment of players to marks.
          */
         final List<Player> orderedPlayers = new ArrayList<>(players);
         for(int i = 0; i < orderedPlayers.size(); i++)
@@ -132,10 +132,11 @@ public class TicTacToeState
         }
     }
 
-    public TicTacToeMark getMarkForPlayer(final Player p)
+    public TicTacToeMark getMarkForPlayer(final Player player)
     {
-        Validate.notNull(p, "Null players do not have marks.");
-        return playerMarks_.get(p);
+        Validate.isTrue(playerMarks_.containsKey(player),
+                String.format("No known marks for player %s", player));
+        return playerMarks_.get(player);
     }
 
     /* Find the player who corresponds with a particular mark on the game board */

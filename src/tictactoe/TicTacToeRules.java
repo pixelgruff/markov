@@ -2,7 +2,6 @@ package tictactoe;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -19,13 +18,15 @@ import core.Score;
  */
 public class TicTacToeRules implements Rules<TicTacToeState, TicTacToeAction>
 {
+    /*
+     * Number of marks in a row that a Player must have in order to consider
+     * having won
+     */
+    private static final int N_IN_A_ROW = 3;
+    private static final int NUMBER_OF_PLAYERS = 2;
 
     /* The default Mark that starts the game */
     private static final TicTacToeMark MARK_GOES_FIRST = TicTacToeMark.X;
-    private static final int DEFAULT_TIC_TAC_TOE_WIN_COUNT = 3;
-
-    /* Length of the path players must create with their marks to win */
-    private final int nInARow_;
 
     /*
      * Generate unit vectors to point towards every possible direction that we
@@ -66,22 +67,6 @@ public class TicTacToeRules implements Rules<TicTacToeState, TicTacToeAction>
                 }
             }
         }
-    }
-
-    public TicTacToeRules()
-    {
-        /* Default the winning path length to 3 marks */
-        this(DEFAULT_TIC_TAC_TOE_WIN_COUNT);
-    }
-
-    /*
-     * @param n Number of moves-in-a-row to win. Must be greater than 0.
-     */
-
-    public TicTacToeRules(final int n)
-    {
-        Validate.isTrue(n > 0, "Cannot play a game with a negative/zero win condition!");
-        nInARow_ = n;
     }
 
     @Override
@@ -131,8 +116,15 @@ public class TicTacToeRules implements Rules<TicTacToeState, TicTacToeAction>
             newState.makeTerminal();
         }
         /* Update the "next player"; this only works with X-O games */
-        newState.setCurrentPlayer(newState.getPlayer((action.getMark() == TicTacToeMark.X) ? TicTacToeMark.O
-                : TicTacToeMark.X));
+        if(newState.isTerminal())
+        {
+            newState.setCurrentPlayer(null);
+        }
+        else
+        {
+            newState.setCurrentPlayer(newState.getPlayer((action.getMark() == TicTacToeMark.X) ? TicTacToeMark.O
+                    : TicTacToeMark.X));
+        }
 
         return newState;
     }
@@ -149,13 +141,14 @@ public class TicTacToeRules implements Rules<TicTacToeState, TicTacToeAction>
         Validate.notNull(state, "Null states have no available actions.");
         Validate.isTrue(!state.isTerminal(), "Terminal states cannot have actions taken on them.");
 
-        final Collection<Vector2> positions = state.getBoardAsMap().keySet().stream()
+        /* Grab all positions that don't currently have a mark (null mapping) */
+        final Collection<Vector2> emptyPositions = state.getBoardAsMap().keySet().stream()
                 .filter((position) -> state.getMarkForPosition(position) == null)
                 .collect(Collectors.toList());
-        final List<TicTacToeAction> actions = new ArrayList<>(positions.size());
         final TicTacToeMark mark = state.getMarkForPlayer(player);
-        positions.stream().forEach((position) -> actions.add(new TicTacToeAction(position, mark)));
-        return actions;
+        /* ...and turn them into actions */
+        return emptyPositions.stream().map(position -> new TicTacToeAction(position, mark))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -199,7 +192,7 @@ public class TicTacToeRules implements Rules<TicTacToeState, TicTacToeAction>
                     ++totalPathLength;
                 }
             }
-            if(totalPathLength >= nInARow_)
+            if(totalPathLength >= N_IN_A_ROW)
             {
                 return true;
             }
@@ -211,13 +204,13 @@ public class TicTacToeRules implements Rules<TicTacToeState, TicTacToeAction>
     @Override
     public ClosedRange<Integer> numberOfPlayers()
     {
-        return new ClosedRange<Integer>(2, 2);
+        return new ClosedRange<Integer>(NUMBER_OF_PLAYERS, NUMBER_OF_PLAYERS);
     }
 
     @Override
     public TicTacToeState generateInitialState(final Collection<Player> players)
     {
-        return new TicTacToeState(players, DEFAULT_TIC_TAC_TOE_WIN_COUNT);
+        return new TicTacToeState(players, N_IN_A_ROW);
     }
 
     @Override
