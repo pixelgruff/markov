@@ -1,8 +1,5 @@
 package tictactoe;
 
-import core.Player;
-import core.Score;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,6 +11,8 @@ import java.util.stream.Collectors;
 
 import utils.Validate;
 import utils.Vector2;
+import core.Player;
+import core.Score;
 
 public class TicTacToeState
 {
@@ -35,22 +34,11 @@ public class TicTacToeState
     private int marksPlaced_ = 0;
     private boolean terminal_ = false;
 
-    /*
-     * We need default constructors in order to serialize our data via Jackson.
-     * Unfortunately, that either means we insert a lot of fake data, or make
-     * the member variables non-final. Either way is sad :(
-     */
-    @SuppressWarnings("unused")
-    private TicTacToeState()
-    {
-    }
-
     /**
      * Generates a TicTacToeBoard of the desired size. This TicTacToeBoard has a
      * width of $dimension, height of $dimensions, and requires $dimension
-     * moves-in-a-row to win.
-     *
-     * The dimension is checked for validity (must be a value greater than 0)
+     * moves-in-a-row to win. The dimension is checked for validity (must be a
+     * value greater than 0)
      *
      * @param players
      *            The Player objects who will be "playing" the game
@@ -161,7 +149,7 @@ public class TicTacToeState
         Validate.isTrue(playerMarks_.values().contains(mark),
                 "Mark not found in all the marks this state knows about.");
 
-        List<Entry<Player, TicTacToeMark>> matchingPlayers = playerMarks_.entrySet().stream()
+        final List<Entry<Player, TicTacToeMark>> matchingPlayers = playerMarks_.entrySet().stream()
                 .filter((entry) -> entry.getValue() == mark).collect(Collectors.toList());
 
         Validate.notEmpty(matchingPlayers);
@@ -182,6 +170,11 @@ public class TicTacToeState
     public Score getPlayerScore(final Player player)
     {
         return playerScores_.getOrDefault(player, new Score());
+    }
+
+    public Map<Player, Score> getPlayerScores()
+    {
+        return new HashMap<Player, Score>(playerScores_);
     }
 
     public void makeTerminal()

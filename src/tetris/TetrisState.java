@@ -1,21 +1,22 @@
 package tetris;
 
-import core.Player;
-import core.Score;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import utils.ClosedRange;
 import utils.Validate;
 import utils.Vector2;
+import core.Player;
+import core.Score;
 
 /**
- *
  * @author Ginger Represent the Tetris board at a particular moment
  */
-public class TetrisState {
+public class TetrisState
+{
 
     /* Keep track of simulation time */
     private int simTime_;
@@ -31,7 +32,8 @@ public class TetrisState {
     private ClosedRange xRange_, yRange_;
 
     /* Default constructor for Jackson */
-    public TetrisState() {
+    public TetrisState()
+    {
     }
 
     /**
@@ -41,7 +43,8 @@ public class TetrisState {
      * @param width
      * @param height
      */
-    public TetrisState(Collection<Player> players, final int width, final int height) {
+    public TetrisState(final Collection<Player> players, final int width, final int height)
+    {
         simTime_ = 0;
         width_ = width;
         height_ = height;
@@ -52,7 +55,8 @@ public class TetrisState {
         yRange_ = new ClosedRange(0, height - 1);
     }
 
-    public TetrisState(final TetrisState copy) {
+    public TetrisState(final TetrisState copy)
+    {
         simTime_ = copy.simTime_;
         width_ = copy.width_;
         height_ = copy.height_;
@@ -63,28 +67,39 @@ public class TetrisState {
         yRange_ = new ClosedRange(0, copy.height_ - 1);
     }
 
-    public boolean isBlockOnBoard(final Vector2 block) {
+    public boolean isBlockOnBoard(final Vector2 block)
+    {
         Validate.notNull(block, "Block to validate must not be null.");
         return xRange_.isValueWithin(block.getX()) && yRange_.isValueWithin(block.getY());
     }
 
-    public List<TetrisShape> getAllShapes() {
+    public List<TetrisShape> getAllShapes()
+    {
         return shapes_;
     }
 
-    public Score getPlayerScore(final Player player) {
+    public Score getPlayerScore(final Player player)
+    {
         return playerScores_.getOrDefault(player, new Score());
     }
 
-    public void makeTerminal() {
+    public void makeTerminal()
+    {
         terminal_ = true;
     }
 
-    public boolean isTerminal() {
+    public boolean isTerminal()
+    {
         return terminal_;
     }
 
-    public int getGameTime() {
+    public int getGameTime()
+    {
         return simTime_;
+    }
+
+    public Map<Player, Score> getPlayerScores()
+    {
+        return new HashMap<Player, Score>(playerScores_);
     }
 }
