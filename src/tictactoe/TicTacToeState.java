@@ -16,23 +16,33 @@ import core.Score;
 
 public class TicTacToeState
 {
-    private final int width_;
-    private final int height_;
+    private int width_;
+    private int height_;
     /*
      * With a map of positions to TicTacToeMarks representing the board, we can
      * have arbitrary TicTacToe boards (non-rectangular). Currently there are no
      * constructors to support this, but the fact remains - it is possible.
      */
-    private final Map<Vector2, TicTacToeMark> board_;
+    private Map<Vector2, TicTacToeMark> board_;
     /* Keep track of which player uses which mark */
-    private final Map<Player, TicTacToeMark> playerMarks_;
+    private Map<Player, TicTacToeMark> playerMarks_;
     /* Keep track of player scores */
-    private final Map<Player, Score> playerScores_;
+    private Map<Player, Score> playerScores_;
     /* Keep track of the current player */
     private Player currentPlayer_;
     /* Keep track of the number of marks placed on the board */
     private int marksPlaced_ = 0;
     private boolean terminal_ = false;
+
+    /*
+     * We need default constructors in order to serialize our data via Jackson.
+     * Unfortunately, that either means we insert a lot of fake data, or make
+     * the member variables non-final. Either way is sad :(
+     */
+    @SuppressWarnings("unused")
+    private TicTacToeState()
+    {
+    }
 
     /**
      * Generates a TicTacToeBoard of the desired size. This TicTacToeBoard has a
