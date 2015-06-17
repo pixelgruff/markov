@@ -4,9 +4,11 @@ import core.Player;
 import core.Rules;
 import core.Score;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import utils.ClosedRange;
 import utils.Validate;
@@ -42,7 +44,7 @@ public class TetrisRules implements Rules<TetrisState, TetrisAction> {
         if (newState.getGameTime() % DESCENT_RATE == 0) {
             dropTetriminos(newState);
             /* Identify and merge contiguous shapes */
-            List<TetrisShape> stackedShapes = findStackedShapes(newState);
+            Set<TetrisShape> stackedShapes = findStackedShapes(newState);
             // TODO: MERGE
         }
         /* Identify and mark shapes on the floor */
@@ -94,67 +96,25 @@ public class TetrisRules implements Rules<TetrisState, TetrisAction> {
     }
     
     /**
-     * Merge all shapes stacked on top of one another; the bottom state should
+     * Find all shapes stacked on top of one another; the bottom state should
      * always be on the floor
      * @param state 
      */
-    private List<TetrisShape> findStackedShapes(final TetrisState state) {
-        List<TetrisShape> stacked = new LinkedList<TetrisShape>();
-        for (TetrisShape shape1 : state.getAllShapes()) {
-            if (shape1.isOnFloor()) continue;
-            for (TetrisShape shape2 : state.getAllShapes()) {
-                /* Check if the first shape is above the second shape, and contiguous */
-                if (shape2.isOnFloor()) {
-                    /* Identify all the x-values this shape contains */
-                    List<Integer> xValues = shape1.getAllBlocks().stream()
-                            .mapToInt(block -> block.getX())
-                            .boxed().collect(Collectors.toList());
-                    /* Check each column for stacked shapes */
-                    for (Integer xValue : xValues) {
-                        if (lowestBlockInShapeAtX(shape1, xValue)
-                                .equals(highestBlockInShapeAtX(shape2, xValue)
-                                        .add(new Vector2(0, 1))
-                                )) {
-                            stacked.add(shape1);
-                            stacked.add(shape2);
-                        }
-                    }
-                }
-            }
-        }
-        return stacked;
+    private Set<TetrisShape> findStackedShapes(final TetrisState state) {
+        return new HashSet<TetrisShape>(
+                state.getAllShapes().stream().filter(topShape
+                        /* Filter for a match with any shape... */
+                        -> state.getAllShapes().stream().anyMatch(bottomShape
+                                /* On the floor... */
+                                -> bottomShape.isOnFloor()
+                                /* For which the top and bottom shapes have blocks... */
+                                && topShape.getAllBlocks().stream()
+                                .anyMatch(topBlock
+                                        -> bottomShape.getAllBlocks()
+                                        /* With the top shape's block directly above the bottom shape's block */
+                                        .contains(topBlock.add(new Vector2(0, -1)))))
+                )
+                .collect(Collectors.toSet())
+        );
     }
-    
-    /**
-     * Find the lowest block in a shape (minimum y-value)
-     * @param shape
-     * @param x
-     * @return 
-     */
-    private Vector2 lowestBlockInShapeAtX(final TetrisShape shape, final int x) {
-        Validate.notNull(shape, "Shape must not be null.");
-        Optional<Vector2> lowest = shape.getAllBlocks().stream()
-                .filter(block -> block.getX() == x)
-                .min((block1, block2) -> Integer.compare(block1.getY(), block2.getY()));
-        Validate.isTrue(lowest.isPresent(), 
-                String.format("There should always be some lowest block at X = %d.", x));
-        return lowest.get();
-    }
-
-    /**
-     * Find the highest block in a shape (maximum y-value)
-     * @param shape
-     * @param x
-     * @return 
-     */
-    private Vector2 highestBlockInShapeAtX(final TetrisShape shape, final int x) {
-        Validate.notNull(shape, "Shape must not be null.");
-        Optional<Vector2> lowest = shape.getAllBlocks().stream()
-                .filter(block -> block.getX() == x)
-                .max((block1, block2) -> Integer.compare(block1.getY(), block2.getY()));
-        Validate.isTrue(lowest.isPresent(), 
-                String.format("There should always be some highest block at X = %d.", x));
-        return lowest.get();
-    }
-    
 }
