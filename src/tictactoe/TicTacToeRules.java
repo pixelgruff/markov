@@ -219,4 +219,10 @@ public class TicTacToeRules implements Rules<TicTacToeState, TicTacToeAction>
         Validate.notNull(state, "Null states have no scores.");
         return state.getPlayerScores();
     }
+
+    @Override
+    public TicTacToeState copyState(final TicTacToeState state)
+    {
+        return new TicTacToeState(state);
+    }
 }

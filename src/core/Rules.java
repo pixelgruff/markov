@@ -81,6 +81,15 @@ public interface Rules<S, A>
     public S filterState(final S state, final Player p);
 
     /**
+     * Provides a deep-copy method for the state
+     *
+     * @param state
+     *            State to deep copy
+     * @return A deep-copy of the state.
+     */
+    public S copyState(final S state);
+
+    /**
      * Score a player at a particular game state
      *
      * @param state

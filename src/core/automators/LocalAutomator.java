@@ -1,6 +1,7 @@
 package core.automators;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -21,54 +22,65 @@ import core.Rules;
  * @param <R>
  *            Rules for the provided State and Actions type
  */
-public class LocalAutomator<S, A, R extends Rules<S, A>> implements Automator<S, A, R>
+public final class LocalAutomator<S, A, R extends Rules<S, A>> extends Automator<S, A, R>
 {
-    @Override
-    public S playGameToCompletion(final R rules, final S initialState,
-            final Map<Player, Policy<S, A>> policies)
-    {
-        Automator.validateArguments(rules, initialState, policies);
-        S currentState = initialState;
-        while(!rules.isTerminal(currentState))
-        {
-            currentState = advanceSingleAction(rules, currentState, policies);
-        }
+    private final Map<Player, Policy<S, A>> playerPolicies_;
 
-        return currentState;
+    public LocalAutomator(final R rules, final Map<Player, Policy<S, A>> playerPolicies)
+    {
+        super(rules, playerPolicies.keySet());
+        playerPolicies_ = new HashMap<Player, Policy<S, A>>(playerPolicies);
     }
 
     @Override
-    public S advanceUntilPlayerTurn(final R rules, final S initialState, final Player player,
-            final Map<Player, Policy<S, A>> policies)
+    public S advanceUntilPlayerTurn(final Player player)
     {
-        Automator.validateArguments(rules, initialState, policies);
-        Validate.isTrue(policies.keySet().contains(player),
-                String.format("Player %s not found within %s", player, policies.keySet()));
-
-        S currentState = initialState;
-        while(!Objects.equals(player, rules.getCurrentPlayer(currentState))
-                && !rules.isTerminal(currentState))
+        Validate.isTrue(playerPolicies_.containsKey(player), String.format(
+                "Cannot advance a game for %s as it is not a known player (%s)", player,
+                playerPolicies_.keySet()));
+        final Player currentPlayer = rules_.getCurrentPlayer(currentState_);
+        while(!Objects.equals(player, currentPlayer) && !rules_.isTerminal(currentState_))
         {
-            currentState = advanceSingleAction(rules, currentState, policies);
+            advanceSingleAction();
         }
-
-        return currentState;
+        return currentState();
     }
 
     @Override
-    public S advanceSingleAction(final R rules, final S initialState,
-            final Map<Player, Policy<S, A>> policies)
+    public S advanceSingleAction()
     {
-        Automator.validateArguments(rules, initialState, policies);
-        final Player currentPlayer = rules.getCurrentPlayer(initialState);
-        final S knownState = rules.filterState(initialState, currentPlayer);
-        final Collection<A> availableActions = rules.getAvailableActions(currentPlayer, knownState);
-        final A chosenAction = policies.get(currentPlayer).chooseAction(knownState,
-                availableActions);
-        /*
-         * We can't really transition from a player-filtered state, we need to
-         * work off of the actual state of the game
-         */
-        return rules.transition(initialState, chosenAction);
+        Validate.isFalse(rules_.isTerminal(currentState_),
+                "Cannot advance actions for a terminal state");
+        final Player currentPlayer = rules_.getCurrentPlayer(currentState_);
+        final Collection<A> availableActions = rules_.getAvailableActions(currentPlayer,
+                currentState_);
+        final S filteredState = rules_.filterState(currentState_, currentPlayer);
+        final Policy<S, A> policy = playerPolicies_.get(currentPlayer);
+        final A chosenAction = policy.chooseAction(filteredState, availableActions);
+        currentState_ = rules_.transition(currentState_, chosenAction);
+        return currentState();
+    }
+
+    @Override
+    public S playGameToCompletion()
+    {
+        while(!rules_.isTerminal(currentState_))
+        {
+            advanceSingleAction();
+        }
+        return currentState();
+    }
+
+    @Override
+    public S currentState()
+    {
+        return rules_.copyState(currentState_);
+    }
+
+    @Override
+    public S currentStateFilteredForPlayer(final Player player)
+    {
+        return rules_.filterState(currentState_, player);
+
     }
 }

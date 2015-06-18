@@ -127,4 +127,10 @@ public class TetrisRules implements Rules<TetrisState, TetrisAction>
         Validate.notNull(state, "Canot get player scores for a null state");
         return state.getPlayerScores();
     }
+
+    @Override
+    public TetrisState copyState(final TetrisState state)
+    {
+        return new TetrisState(state);
+    }
 }

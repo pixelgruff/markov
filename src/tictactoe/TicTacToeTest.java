@@ -20,12 +20,12 @@ public class TicTacToeTest
         policies.put(new Player("Player 1"), new RandomPolicy<>());
         policies.put(new Player("Player 2"), new RandomPolicy<>());
 
-        final LocalAutomator<TicTacToeState, TicTacToeAction, TicTacToeRules> ticTacToeAutomator = new LocalAutomator<>();
         final TicTacToeRules rules = new TicTacToeRules();
+        final LocalAutomator<TicTacToeState, TicTacToeAction, TicTacToeRules> ticTacToeAutomator = new LocalAutomator<>(
+                rules, policies);
+
         /* Note that these players are not added in any guaranteed order */
-        final TicTacToeState initialState = rules.generateInitialState(policies.keySet());
-        final TicTacToeState endedState = ticTacToeAutomator.playGameToCompletion(
-                new TicTacToeRules(), initialState, policies);
+        final TicTacToeState endedState = ticTacToeAutomator.playGameToCompletion();
 
         final Player winner = policies
                 .keySet()
