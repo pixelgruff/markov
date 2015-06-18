@@ -1,5 +1,7 @@
 package utils;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -109,7 +111,7 @@ public final class Vector2
 
     /**
      * Performs scalar multiplication on the Vector2
-     * 
+     *
      * @param scalar
      *            Scalar to multiply each component of the Vector2 by
      * @return The result of the multiplication (non-null)
@@ -119,6 +121,30 @@ public final class Vector2
         return new Vector2(x_ * scalar, y_ * scalar);
     }
 
+    public static Collection<Vector2> directionalVectors()
+    {
+        final int totalDirections = 8;
+        final Collection<Vector2> directionalVectors = new ArrayList<Vector2>(totalDirections);
+        for(int dX = -1; dX <= 1; ++dX)
+        {
+            for(int dY = -1; dY <= 1; ++dY)
+            {
+                if(dX == 0 && dY == 0)
+                {
+                    /*
+                     * These directions specify actual "movement", which a
+                     * 0-direction vector does not have...
+                     */
+                    continue;
+                }
+
+                final Vector2 directionalVector = new Vector2(dX, dY);
+                directionalVectors.add(directionalVector);
+            }
+        }
+        return directionalVectors;
+    }
+
     @Override
     public String toString()
     {
@@ -126,11 +152,11 @@ public final class Vector2
     }
 
     @Override
-    public boolean equals(Object obj)
+    public boolean equals(final Object obj)
     {
         if(obj instanceof Vector2)
         {
-            Vector2 other = (Vector2) obj;
+            final Vector2 other = (Vector2) obj;
             return Objects.equals(x_, other.x_) && Objects.equals(y_, other.y_);
         }
         return false;
