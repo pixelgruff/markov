@@ -1,6 +1,7 @@
 package core;
 
 import java.util.Collection;
+import java.util.List;
 
 import utils.ClosedRange;
 import utils.Validate;
@@ -34,4 +35,6 @@ public abstract class Automator<S, A, R extends Rules<S, A>>
     public abstract S currentState();
 
     public abstract S currentStateFilteredForPlayer(final Player player);
+    
+    public abstract List<A> getActionsTaken();
 }

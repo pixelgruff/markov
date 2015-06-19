@@ -1,7 +1,9 @@
 package core.automators;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -26,10 +28,13 @@ public final class LocalAutomator<S, A, R extends Rules<S, A>> extends Automator
 {
     private final Map<Player, Policy<S, A>> playerPolicies_;
 
+    private final List<A> actionsTaken_;
+
     public LocalAutomator(final R rules, final Map<Player, Policy<S, A>> playerPolicies)
     {
         super(rules, playerPolicies.keySet());
         playerPolicies_ = new HashMap<Player, Policy<S, A>>(playerPolicies);
+        actionsTaken_ = new ArrayList<A>();
     }
 
     @Override
@@ -57,6 +62,7 @@ public final class LocalAutomator<S, A, R extends Rules<S, A>> extends Automator
         final S filteredState = rules_.filterState(currentState_, currentPlayer);
         final Policy<S, A> policy = playerPolicies_.get(currentPlayer);
         final A chosenAction = policy.chooseAction(filteredState, availableActions);
+        actionsTaken_.add(chosenAction);
         currentState_ = rules_.transition(currentState_, chosenAction);
         return currentState();
     }
@@ -82,5 +88,15 @@ public final class LocalAutomator<S, A, R extends Rules<S, A>> extends Automator
     {
         return rules_.filterState(currentState_, player);
 
+    }
+
+    @Override
+    public List<A> getActionsTaken()
+    {
+        /*
+         * Hopefully Actions are immutable. We need to take extra care to guard
+         * against this, otherwise we leak state to callers of this method.
+         */
+        return new ArrayList<A>(actionsTaken_);
     }
 }
