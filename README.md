@@ -57,13 +57,12 @@ Rules offer a clean interface for "querying" gamestate.
 
 ### Policies
 
-Policies are an incredibly simple interface consisting of only a single function: choose an Action from an enumeration of available Actions for a State. That's it. It is from this that AI are built. What goes into that logic is entirely up to you, as a user of this framework. We provide some simple AI as examples.
+[Policies](https://github.com/mtl-stepchild/markov/blob/master/src/core/Policy.java) are an incredibly simple interface consisting of only a single function: choose an Action from an enumeration of available Actions for a State. That's it. It is from this that AI are built. What goes into that logic is entirely up to you, as a user of this framework. We provide some simple AI as examples.
 
 All you need to do to create an AI is create a class that implements the Policy interface. Here's a simple TicTacToe Policy implementation as an example:
 ```Java
 public class SimpleJohnnyTicTacToePolicy implements Policy<TicTacToeState, TicTacToeAction>
 {
-
     @Override
     public TicTacToeAction chooseAction(TicTacToeState currentState, Collection<TicTacToeAction> actions)
     {
@@ -89,5 +88,5 @@ That's it! That's all there is to it. Keep in mind that the actions returned fro
 Actions are the "moves" available to a Policy at any given stage of the game. They are enumerated via the Rules for a given State. This enumeration is presented to a Policy, from which it determines what move to choose. For example, in TicTacToe, an action consists of a position on the board and a mark (X or O) to put on that position. Simple stuff.
 
 ## Automator
-Automators... automate games. They'll play the game for you! Give it some policies and off it goes. We currently have a LocalAutomator which will play games in memory (Java-only policies) and are have a networked automator in the works will allow for cross-language game automation (arbitrary language policies)
+[Automators](https://github.com/mtl-stepchild/markov/blob/master/src/core/Automator.java) ...automate games. They'll play the game for you! Give it some policies and off it goes. We currently have a LocalAutomator which will play games in memory (Java-only policies) and are have a networked automator in the works will allow for cross-language game automation (arbitrary language policies)
 
