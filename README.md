@@ -18,7 +18,7 @@ To expand on these: In order for this framework to be cross-language compatible,
 * Wumpus World
 * Tetris
 
-## Lacking / In-Process soon
+## Lacking / In-Progress soon
 * Pretty pretty views. These will be focused on later, as part of the web framework, and written in javascript. We will not provide pretty pretty views for locally played games, only text output.
 * Website!
 * Scripts to trigger game plays via the website
