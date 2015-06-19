@@ -5,6 +5,8 @@ public class WumpusWorldTest
 
     public static void main(final String args[])
     {
-        System.out.println("Hello, world!");
+        final WumpusWorldDungeon dungeon = new WumpusWorldDungeon();
+
+        System.out.println(dungeon);
     }
 }

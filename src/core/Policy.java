@@ -1,4 +1,5 @@
 package core;
+
 import java.util.Collection;
 
 /**

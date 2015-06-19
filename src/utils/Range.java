@@ -50,6 +50,16 @@ public abstract class Range<T extends Number & Comparable<T>>
         return false;
     }
 
+    public T getMaximumBounds()
+    {
+        return max_;
+    }
+
+    public T getMinimumBounds()
+    {
+        return min_;
+    }
+
     @Override
     public int hashCode()
     {

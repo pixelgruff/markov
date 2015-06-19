@@ -80,7 +80,6 @@ public class SimpleJohnnyTicTacToePolicy implements Policy<TicTacToeState, TicTa
     }
 }
 ```
-
 That's it! That's all there is to it. Keep in mind that the actions returned from this function are validated, so you returning an action that was not available to you will cause *consequences*.
 
 ### Actions
@@ -88,5 +87,5 @@ That's it! That's all there is to it. Keep in mind that the actions returned fro
 Actions are the "moves" available to a Policy at any given stage of the game. They are enumerated via the Rules for a given State. This enumeration is presented to a Policy, from which it determines what move to choose. For example, in TicTacToe, an action consists of a position on the board and a mark (X or O) to put on that position. Simple stuff.
 
 ## Automator
-[Automators](https://github.com/mtl-stepchild/markov/blob/master/src/core/Automator.java) ...automate games. They'll play the game for you! Give it some policies and off it goes. We currently have a LocalAutomator which will play games in memory (Java-only policies) and are have a networked automator in the works will allow for cross-language game automation (arbitrary language policies)
+[Automators](https://github.com/mtl-stepchild/markov/blob/master/src/core/Automator.java) ...automate games. They'll play the game for you! Give it some policies and off it goes. We currently have a [LocalAutomator](https://github.com/mtl-stepchild/markov/blob/master/src/core/automators/LocalAutomator.java) which will play games in memory (Java-only policies) and are have a [NetworkedAutomator](https://github.com/wallstop/MarkovNetwork/blob/master/src/core/network/NetworkAutomator.java) in the works will allow for cross-language game automation (arbitrary language policies)
 
