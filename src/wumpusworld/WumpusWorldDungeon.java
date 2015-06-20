@@ -19,10 +19,10 @@ import utils.Vector2;
 /**
  * Immutable, procedurally generated dungeon.
  *
- * Gauranteed to be solvable (at least one path exists between the player and
+ * Guaranteed to be solvable (at least one path exists between the player and
  * the gold)
  *
- * General layout described:
+ * General layout described here:
  * http://www.cis.temple.edu/~giorgio/cis587/readings/wumpus.shtml
  *
  */
@@ -45,7 +45,8 @@ public class WumpusWorldDungeon
      * Determines what percentage (within some bounds) of the dungeon should be
      * pits. It's not a hard dungeon without a lot of pits...
      *
-     * @return
+     * @return Random percentage value to use to determine the amount of pits a
+     *         dungeon should have
      */
     private static double pitPercentage()
     {
@@ -125,7 +126,11 @@ public class WumpusWorldDungeon
         dungeon_ = new HashMap<Vector2, RoomContents>(DEFAULT_DUNGEON_WIDTH
                 * DEFAULT_DUNGEON_HEIGHT);
 
-        /* Fill up the dungeon with null (empty) spaces */
+        /*
+         * Fill up the dungeon with null (empty) spaces. We need some kind of
+         * keyset enumeration on the map so that the dungeon consists of actual
+         * "spaces", or "tiles"
+         */
         for(int i = 0; i < width; ++i)
         {
             for(int j = 0; j < height; ++j)
@@ -204,12 +209,17 @@ public class WumpusWorldDungeon
         tilesToExplore.add(source);
         do
         {
+            /*
+             * Pick the tile that we can move to closest to the goal, see if
+             * we're there
+             */
             final Vector2 currentSpace = tilesToExplore.pollFirst();
             if(currentSpace.equals(goal))
             {
                 return true;
             }
 
+            /* If not, see where we can go */
             final Collection<Vector2> cardinalDirections = Vector2.directionalVectors();
             cardinalDirections.stream().map(space -> currentSpace.add(space))
             /* Determine actual movement vector */
@@ -262,6 +272,34 @@ public class WumpusWorldDungeon
     {
         final Vector2 goldSpace = goldSpace();
         return canReachLadder(goldSpace);
+    }
+
+    /**
+     * Checks whether or not the space represented by the Vector2 is within the
+     * dungeon
+     *
+     * @param space
+     *            Space to check
+     * @return True if the space is in the dungeon, false otherwise
+     */
+    public boolean contains(final Vector2 space)
+    {
+        return dungeon_.containsKey(space);
+    }
+
+    /**
+     * Returns the RoomContents for the space in the dungeon, if any
+     *
+     * Note: Returns null if there are no contents at the space or if the space
+     * is outside the dungeon
+     *
+     * @param space
+     *            Space to determine contents of
+     * @return Contents for the space
+     */
+    public RoomContents contentsForSpace(final Vector2 space)
+    {
+        return dungeon_.get(space);
     }
 
     /**
@@ -475,7 +513,7 @@ public class WumpusWorldDungeon
             ladderSpace = probableSpace();
         }
         /*
-         * We've already gauranteed that every space in the dungeon is empty, so
+         * We've already guaranteed that every space in the dungeon is empty, so
          * there's no need to double check any condition besides that the chosen
          * space actually exists in the dungeon
          */
@@ -519,6 +557,14 @@ public class WumpusWorldDungeon
 
         for(int pitCount = 0; pitCount < numPits && numPlacementRetries < maxPlacementRetries;)
         {
+            /*
+             * TODO: Currently, we place a pit then check if a path exists from
+             * gold to entrance. Generally, the pit placement is ok. We could
+             * optimize this by batching up the pits before checking if a path
+             * exists (IE, many pit placements, one path check, rolling all back
+             * if not ok). Pit placement / generation is very cheap, but right
+             * now, this method is fast enough.
+             */
             Vector2 pitSpace;
             do
             {
@@ -636,8 +682,8 @@ public class WumpusWorldDungeon
     }
 
     /**
-     * Places all the necessary dungeon components - ladder, dungeon, wumpus,
-     * and pits
+     * Places all the necessary dungeon components - ladder, gold, wumpus, and
+     * pits
      */
     private void setupDungeon()
     {
@@ -684,5 +730,28 @@ public class WumpusWorldDungeon
     public int width()
     {
         return (maxXCoordinate_ - minXCoordinate_) + 1;
+    }
+
+    public WumpusWorldDungeon withGoldAt(final Vector2 position)
+    {
+        Validate.isTrue(dungeon_.containsKey(position), "Cannot create a WumpusWorldDungeon "
+                + "with the gold outside of the dungeon");
+        Validate.isTrue(dungeon_.get(position) == EMPTY, "Cannot create a WumpusWorldDungeon "
+                + "with the gold on a non-empty space");
+        final Vector2 goldSpace = goldSpace();
+        final WumpusWorldDungeon copy = new WumpusWorldDungeon(this);
+        copy.dungeon_.put(goldSpace, EMPTY);
+        copy.dungeon_.put(position, RoomContents.GOLD);
+        return copy;
+    }
+
+    public WumpusWorldDungeon withNoGold()
+    {
+        Validate.isTrue(dungeon_.containsValue(RoomContents.GOLD),
+                "Cannot remove gold from a WumpusWorldDungeon" + " that has no gold in it.");
+        final Vector2 goldSpace = goldSpace();
+        final WumpusWorldDungeon copy = new WumpusWorldDungeon(this);
+        copy.dungeon_.put(goldSpace, EMPTY);
+        return copy;
     }
 }

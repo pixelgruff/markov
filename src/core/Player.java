@@ -17,7 +17,7 @@ public class Player implements Comparable<Player>
      */
     private final UUID id_;
     private final String name_;
-    
+
     /* We need default constructors in order to serialize our data via Jackson */
     @SuppressWarnings("unused")
     private Player()
@@ -31,13 +31,8 @@ public class Player implements Comparable<Player>
         name_ = name;
     }
 
-    public String getName()
-    {
-        return name_;
-    }
-
     @Override
-    public int compareTo(Player other)
+    public int compareTo(final Player other)
     {
         if(other == null)
         {
@@ -47,7 +42,7 @@ public class Player implements Comparable<Player>
     }
 
     @Override
-    public boolean equals(Object other)
+    public boolean equals(final Object other)
     {
         if(!(other instanceof Player))
         {
@@ -55,6 +50,11 @@ public class Player implements Comparable<Player>
         }
 
         return compareTo((Player) other) == 0;
+    }
+
+    public String getName()
+    {
+        return name_;
     }
 
     @Override

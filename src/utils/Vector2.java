@@ -1,7 +1,7 @@
 package utils;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -13,10 +13,10 @@ import java.util.Objects;
  */
 public final class Vector2
 {
-    public static Collection<Vector2> cardinalDirections()
+    public static List<Vector2> cardinalDirections()
     {
         final int totalDirections = 4;
-        final Collection<Vector2> cardinalDirections = new ArrayList<Vector2>(totalDirections);
+        final List<Vector2> cardinalDirections = new ArrayList<Vector2>(totalDirections);
         /* TODO: Clean up, this is messy */
         for(int dX = -1; dX <= 1; ++dX)
         {
@@ -35,7 +35,7 @@ public final class Vector2
     }
 
     /**
-     * Returns a Collection of unit vectors that represent the movement Vectors
+     * Returns a List of unit vectors that represent the movement Vectors
      * necessary to transition from a space represented by a Vector2 to all of
      * it's surrounding positions.
      *
@@ -46,10 +46,10 @@ public final class Vector2
      * @return Collection of movement vectors to transition to all adjacent
      *         spaces
      */
-    public static Collection<Vector2> directionalVectors()
+    public static List<Vector2> directionalVectors()
     {
         final int totalDirections = 8;
-        final Collection<Vector2> directionalVectors = new ArrayList<Vector2>(totalDirections);
+        final List<Vector2> directionalVectors = new ArrayList<Vector2>(totalDirections);
         /* TODO: Clean up, this is messy */
         for(int dX = -1; dX <= 1; ++dX)
         {
