@@ -7,18 +7,21 @@ import core.Player;
 
 public class WumpusWorldState
 {
-    final static int DEFAULT_DUNGEON_HEIGHT = 200;
-    final static int DEFAULT_DUNGEON_WIDTH  = 200;
+    private final WumpusWorldDungeon dungeon_;
 
-    public static WumpusWorldState generateRandomStartingConfig(final int width, final int height)
+    public WumpusWorldState()
     {
+        this(WumpusWorldDungeon.DEFAULT_DUNGEON_WIDTH, WumpusWorldDungeon.DEFAULT_DUNGEON_HEIGHT);
+    }
 
-        return null;
+    public WumpusWorldState(final int width, final int height)
+    {
+        dungeon_ = new WumpusWorldDungeon(width, height);
     }
 
     public Collection<Percept> getPerceptsForPlayer(final Player player)
     {
-
+        // TODO: Figure out how to go about proper information hiding
         return Collections.emptyList();
     }
 }

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import utils.ClosedRange;
+import utils.Validate;
 import core.Player;
 import core.Rules;
 import core.Score;
@@ -21,6 +22,7 @@ public class WumpusWorldRules implements Rules<WumpusWorldState, WumpusWorldActi
     @Override
     public WumpusWorldState generateInitialState(final Collection<Player> players)
     {
+        Validate.notEmpty(players, "Cannot create a WumpusWorldDunegon without any players");
         // TODO Auto-generated method stub
         return null;
     }

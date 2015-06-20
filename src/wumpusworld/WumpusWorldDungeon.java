@@ -28,8 +28,8 @@ import utils.Vector2;
  */
 public class WumpusWorldDungeon
 {
-    private static final int DEFAULT_DUNGEON_HEIGHT = 200;
-    private static final int DEFAULT_DUNGEON_WIDTH = 200;
+    public static final int DEFAULT_DUNGEON_HEIGHT = 200;
+    public static final int DEFAULT_DUNGEON_WIDTH = 200;
     private static final RoomContents EMPTY = null;
     /* Can't have Wumpus World Dungeons that are less than 4 x 4 */
     private static final int MINIMUM_DUNGEON_HEIGHT = 4;
@@ -143,6 +143,26 @@ public class WumpusWorldDungeon
 
         /* Finally, place everything */
         setupDungeon();
+    }
+
+    /**
+     * Copies a WumpusWorldDungeon.
+     *
+     * Note: Cannot copy null WumpusWorldDungeons
+     *
+     * @param copy
+     *            WumpusWorldDungeon to copy
+     */
+    public WumpusWorldDungeon(final WumpusWorldDungeon copy)
+    {
+        Validate.notNull(copy, "Cannot create a copy of a null WumpusWorldDungeon");
+        dungeon_ = new HashMap<Vector2, RoomContents>(copy.dungeon_);
+        minXCoordinate_ = copy.minXCoordinate_;
+        minYCoordinate_ = copy.minYCoordinate_;
+        maxXCoordinate_ = copy.maxXCoordinate_;
+        maxYCoordinate_ = copy.maxYCoordinate_;
+        goldSpace_ = copy.goldSpace_;
+        ladderSpace_ = copy.ladderSpace_;
     }
 
     /**
@@ -263,7 +283,7 @@ public class WumpusWorldDungeon
      * @return *A* Space that contains the contents or null if no such contents
      *         exist in the dungeon.
      */
-    private final Vector2 findSpaceFor(final RoomContents contents)
+    public Vector2 findSpaceFor(final RoomContents contents)
     {
         return dungeon_.entrySet().stream().filter(entry -> entry.getValue() == contents)
                 .map(entry -> entry.getKey()).findFirst().orElse(null);
@@ -294,7 +314,7 @@ public class WumpusWorldDungeon
     /**
      * Returns the dungeon as a Map of Vector2 to RoomContents
      *
-     * Note: Modifying this Array has no impact whatsoever on the internal state
+     * Note: Modifying this Map has no impact whatsoever on the internal state
      * of the dungeon.
      *
      * @return The Dungeon as if it were a Map of Vector2 to RoomContents
