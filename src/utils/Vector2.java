@@ -140,7 +140,11 @@ public final class Vector2
         if(obj instanceof Vector2)
         {
             final Vector2 other = (Vector2) obj;
-            return Objects.equals(x_, other.x_) && Objects.equals(y_, other.y_);
+            /*
+             * We use direct int compares instead of Objects.equals(...) as a
+             * speed optimiziation
+             */
+            return x_ == other.x_ && y_ == other.y_;
         }
         return false;
     }

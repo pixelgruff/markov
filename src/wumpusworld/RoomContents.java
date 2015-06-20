@@ -1,13 +1,13 @@
 package wumpusworld;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public enum RoomContents
 {
     GOLD, LADDER, PIT, WUMPUS;
 
-    private static final Collection<RoomContents> PASSABLE_CONTENTS = new ArrayList<RoomContents>();
+    private static final Set<RoomContents> PASSABLE_CONTENTS = new HashSet<RoomContents>();
     static
     {
         PASSABLE_CONTENTS.add(GOLD);
