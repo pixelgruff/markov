@@ -1,15 +1,16 @@
 package wumpusworld;
 
-import java.security.SecureRandom;
-import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
+import java.util.Stack;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 import utils.ClosedRange;
 import utils.Validate;
@@ -22,7 +23,7 @@ public class WumpusWorldDungeon
     private static final RoomContents EMPTY = null;
     private static final int MINIMUM_DUNGEON_HEIGHT = 4;
     private static final int MINIMUM_DUNGEON_WIDTH = 4;
-    private static final Random RGEN = new SecureRandom();
+    private static final Random RGEN = ThreadLocalRandom.current();
 
     private static double pitPercentage()
     {
@@ -31,8 +32,8 @@ public class WumpusWorldDungeon
          * god-awful. Once we fix our pathfinding, crank these values up to
          * 20-40%
          */
-        final double minPercentage = 0.01;
-        final double maxPercentage = 0.05;
+        final double minPercentage = 0.20;
+        final double maxPercentage = 0.40;
         final ClosedRange<Double> validPitPercentages = new ClosedRange<Double>(minPercentage,
                 maxPercentage);
 
@@ -75,59 +76,48 @@ public class WumpusWorldDungeon
         setupDungeon();
     }
 
-    private boolean canReachLadder(final Vector2 space)
+    private boolean canReachLadder(final Vector2 fromSpace)
     {
-        if(!dungeon_.containsKey(space))
+        if(!dungeon_.containsKey(fromSpace) || !dungeon_.containsValue(RoomContents.LADDER))
         {
             return false;
         }
 
-        /* Breadth-first search this bad boy */
-        final Set<Vector2> exhaustedSpacesOnBoard = new HashSet<Vector2>();
-        final Queue<Vector2> possibleExplorationTiles = new ArrayDeque<Vector2>();
+        final Vector2 goal = dungeon_.entrySet().stream()
+                .filter(entry -> entry.getValue() == RoomContents.LADDER)
+                .map(entry -> entry.getKey()).findFirst().get();
 
-        /*
-         * TODO: This search method blowwwwwwwwwwwwwwwwwwwwwws get some A* in
-         * here
-         */
-        Vector2 currentSpace = space;
+        final Set<Vector2> alreadyExploredTiles = new HashSet<Vector2>();
+        final Stack<Vector2> tilesToExplore = new Stack<Vector2>();
+        tilesToExplore.push(fromSpace);
         do
         {
-            final RoomContents contents = dungeon_.get(currentSpace);
-            if(contents == RoomContents.LADDER)
+            final Vector2 currentSpace = tilesToExplore.pop();
+            if(currentSpace.equals(goal))
             {
                 return true;
             }
-            /* Explore outwards */
-            final Collection<Vector2> movableDirections = Vector2.directionalVectors();
-            final Set<Vector2> reachableSpaces = new HashSet<Vector2>(movableDirections.size());
-            final Vector2 centerSpace = currentSpace;
-            movableDirections.forEach(direction ->
-            {
-                final Vector2 newSpaceToExplore = centerSpace.add(direction);
-                if(dungeon_.containsKey(newSpaceToExplore)
-                        && !exhaustedSpacesOnBoard.contains(newSpaceToExplore))
-                {
-                    final RoomContents roomContents = dungeon_.get(newSpaceToExplore);
-                    if(RoomContents.isPassable(roomContents))
-                    {
-                        reachableSpaces.add(newSpaceToExplore);
-                    }
-                }
-            });
+            alreadyExploredTiles.add(currentSpace);
 
-            reachableSpaces.forEach(tile -> possibleExplorationTiles.add(tile));
-            if(possibleExplorationTiles.isEmpty())
+            final Collection<Vector2> cardinalDirections = Vector2.directionalVectors();
+            final List<Vector2> possibleMoves = cardinalDirections.stream()
+                    .map(space -> currentSpace.add(space))
+                    .filter(space -> isPositionPassable(space))
+                    .filter(space -> !alreadyExploredTiles.contains(space))
+                    .collect(Collectors.toList());
+
+            if(possibleMoves.isEmpty())
             {
-                return false;
+                continue;
             }
-            exhaustedSpacesOnBoard.add(currentSpace);
-            exhaustedSpacesOnBoard.addAll(reachableSpaces);
 
-            currentSpace = possibleExplorationTiles.remove();
-
+            final Vector2 bestMovement = possibleMoves
+                    .stream()
+                    .min((first, second) -> Double.compare(first.squaredDistanceBetween(goal),
+                            second.squaredDistanceBetween(goal))).get();
+            tilesToExplore.push(bestMovement);
         }
-        while(!possibleExplorationTiles.isEmpty());
+        while(!tilesToExplore.isEmpty());
 
         return false;
     }
@@ -157,6 +147,11 @@ public class WumpusWorldDungeon
     public int height()
     {
         return (maximumYCoordinate() - minimumYCoordinate()) + 1;
+    }
+
+    private boolean isPositionPassable(final Vector2 position)
+    {
+        return dungeon_.containsKey(position) && RoomContents.isPassable(dungeon_.get(position));
     }
 
     private int maximumXCoordinate()
@@ -260,7 +255,10 @@ public class WumpusWorldDungeon
             {
                 ++pitCount;
                 numPlacementRetries = 0;
-                System.out.println("Placed " + pitCount + " pits out of " + numPits);
+                if(pitCount % 100 == 0)
+                {
+                    System.out.println("Placed " + pitCount + " pits out of " + numPits);
+                }
             }
             else
             {
@@ -342,7 +340,7 @@ public class WumpusWorldDungeon
             {
                 if(contents == null)
                 {
-                    builder.append("?");
+                    builder.append(" ");
                 }
                 else
                 {

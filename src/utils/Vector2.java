@@ -13,6 +13,27 @@ import java.util.Objects;
  */
 public final class Vector2
 {
+    public static Collection<Vector2> cardinalDirections()
+    {
+        final int totalDirections = 4;
+        final Collection<Vector2> cardinalDirections = new ArrayList<Vector2>(totalDirections);
+        /* TODO: Clean up, this is messy */
+        for(int dX = -1; dX <= 1; ++dX)
+        {
+            for(int dY = -1; dY <= 1; ++dY)
+            {
+                if(dY == 0 || dX == 0)
+                {
+                    continue;
+                }
+                final Vector2 cardinalDirection = new Vector2(dX, dY);
+                cardinalDirections.add(cardinalDirection);
+            }
+
+        }
+        return cardinalDirections;
+    }
+
     /**
      * Returns a Collection of unit vectors that represent the movement Vectors
      * necessary to transition from a space represented by a Vector2 to all of
@@ -29,6 +50,7 @@ public final class Vector2
     {
         final int totalDirections = 8;
         final Collection<Vector2> directionalVectors = new ArrayList<Vector2>(totalDirections);
+        /* TODO: Clean up, this is messy */
         for(int dX = -1; dX <= 1; ++dX)
         {
             for(int dY = -1; dY <= 1; ++dY)
@@ -103,6 +125,15 @@ public final class Vector2
         return new Vector2(x_ + other.x_, y_ + other.y_);
     }
 
+    public double distanceBetween(final Vector2 other)
+    {
+        if(other == null)
+        {
+            return getMagnitude();
+        }
+        return subtract(other).getMagnitude();
+    }
+
     @Override
     public boolean equals(final Object obj)
     {
@@ -112,6 +143,16 @@ public final class Vector2
             return Objects.equals(x_, other.x_) && Objects.equals(y_, other.y_);
         }
         return false;
+    }
+
+    public double getMagnitude()
+    {
+        return Math.sqrt(getMagnitudeSquared());
+    }
+
+    public double getMagnitudeSquared()
+    {
+        return x_ * x_ + y_ * y_;
     }
 
     /**
@@ -161,6 +202,15 @@ public final class Vector2
     {
         Validate.notNull(other, "Cannot multiply a null vector");
         return new Vector2(x_ * other.x_, y_ * other.y_);
+    }
+
+    public double squaredDistanceBetween(final Vector2 other)
+    {
+        if(other == null)
+        {
+            return getMagnitudeSquared();
+        }
+        return subtract(other).getMagnitudeSquared();
     }
 
     /**
