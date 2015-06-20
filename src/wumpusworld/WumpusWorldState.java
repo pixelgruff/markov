@@ -66,15 +66,28 @@ public class WumpusWorldState
         return percepts;
     }
 
-    public Vector2 getPlayerDirection()
+    public boolean isTerminal()
     {
-        return playerDirection_;
-    }
+        /* If the player runs into a wumpus or a pit, game over fellas */
+        final RoomContents roomPlayerIsIn = dungeon_.contentsForSpace(playerPosition_);
+        if(roomPlayerIsIn == RoomContents.WUMPUS || roomPlayerIsIn == RoomContents.PIT)
+        {
+            return true;
+        }
 
-    public Vector2 getPlayerPosition()
-    {
-        /* Vector2s are immutable, returnign our own reference is ok */
-        return playerPosition_;
+        /*
+         * Or, if the player
+         *
+         * if(dungeon_.contentsForSpace(playerPosition_) return
+         *
+         * }
+         *
+         * public Vector2 getPlayerDirection() { return playerDirection_; }
+         *
+         * public Vector2 getPlayerPosition() { /* Vector2s are immutable,
+         * returnign our own reference is ok
+         */
+        return false;
     }
 
     public WumpusWorldState withPlayerAt(final Vector2 position)
