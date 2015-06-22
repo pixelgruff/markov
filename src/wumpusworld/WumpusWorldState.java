@@ -2,10 +2,7 @@ package wumpusworld;
 
 import java.security.SecureRandom;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 import utils.Validate;
 import utils.Vector2;
@@ -28,12 +25,15 @@ public class WumpusWorldState
 
     public WumpusWorldState(final int width, final int height)
     {
-        dungeon_ = new WumpusWorldDungeon(width, height);
-        /* The player starts at the ladder (entrance) */
-        playerPosition_ = dungeon_.findSpaceFor(RoomContents.LADDER);
-        final List<Vector2> cardinalDirections = Vector2.cardinalDirections();
-        /* Arbitrary initial direction */
-        playerDirection_ = cardinalDirections.get(RGEN.nextInt(cardinalDirections.size()));
+        throw new RuntimeException("NOT IMPLEMENTED");
+        // dungeon_ = new WumpusWorldDungeon(width, height);
+        // /* The player starts at the ladder (entrance) */
+        // playerPosition_ = dungeon_.findSpaceFor(RoomContents.LADDER);
+        // final List<Vector2> cardinalDirections =
+        // Vector2.cardinalDirections();
+        // /* Arbitrary initial direction */
+        // playerDirection_ =
+        // cardinalDirections.get(RGEN.nextInt(cardinalDirections.size()));
     }
 
     public WumpusWorldState(final WumpusWorldState copy)
@@ -52,42 +52,49 @@ public class WumpusWorldState
 
     public Collection<Percept> getPerceptsForPlayer(final Player player)
     {
-        final Set<Percept> percepts = new HashSet<Percept>(Percept.values().length);
-        Vector2.cardinalDirections().forEach(direction ->
-        {
-            final Vector2 adjacentSpace = playerPosition_.add(direction);
-            final RoomContents contents = dungeon_.contentsForSpace(adjacentSpace);
-            final Percept perceptForContents = RoomContents.perceptForRoom(contents);
-            if(perceptForContents != null)
-            {
-                percepts.add(perceptForContents);
-            }
-        });
-        return percepts;
+        throw new RuntimeException("NOT IMPLEMENTED");
+        // final Set<Percept> percepts = new
+        // HashSet<Percept>(Percept.values().length);
+        // Vector2.cardinalDirections().forEach(direction ->
+        // {
+        // final Vector2 adjacentSpace = playerPosition_.add(direction);
+        // final RoomContents contents =
+        // dungeon_.contentsForSpace(adjacentSpace);
+        // final Percept perceptForContents =
+        // RoomContents.perceptForRoom(contents);
+        // if(perceptForContents != null)
+        // {
+        // percepts.add(perceptForContents);
+        // }
+        // });
+        // return percepts;
     }
 
     public boolean isTerminal()
     {
-        /* If the player runs into a wumpus or a pit, game over fellas */
-        final RoomContents roomPlayerIsIn = dungeon_.contentsForSpace(playerPosition_);
-        if(roomPlayerIsIn == RoomContents.WUMPUS || roomPlayerIsIn == RoomContents.PIT)
-        {
-            return true;
-        }
-
-        /*
-         * Or, if the player
-         *
-         * if(dungeon_.contentsForSpace(playerPosition_) return
-         *
-         * }
-         *
-         * public Vector2 getPlayerDirection() { return playerDirection_; }
-         *
-         * public Vector2 getPlayerPosition() { /* Vector2s are immutable,
-         * returnign our own reference is ok
-         */
         return false;
+        /* If the player runs into a wumpus or a pit, game over fellas */
+        // final RoomContents roomPlayerIsIn =
+        // dungeon_.contentsForSpace(playerPosition_);
+        // if(roomPlayerIsIn == RoomContents.WUMPUS || roomPlayerIsIn ==
+        // RoomContents.PIT)
+        // {
+        // return true;
+        // }
+        //
+        // /*
+        // * Or, if the player
+        // *
+        // * if(dungeon_.contentsForSpace(playerPosition_) return
+        // *
+        // * }
+        // *
+        // * public Vector2 getPlayerDirection() { return playerDirection_; }
+        // *
+        // * public Vector2 getPlayerPosition() { /* Vector2s are immutable,
+        // * returnign our own reference is ok
+        // */
+        // return false;
     }
 
     public WumpusWorldState withPlayerAt(final Vector2 position)

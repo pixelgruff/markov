@@ -1,12 +1,15 @@
 package wumpusworld;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.NavigableSet;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
@@ -30,7 +33,6 @@ public class WumpusWorldDungeon
 {
     public static final int DEFAULT_DUNGEON_HEIGHT = 200;
     public static final int DEFAULT_DUNGEON_WIDTH = 200;
-    private static final RoomContents EMPTY = null;
     /* Can't have Wumpus World Dungeons that are less than 4 x 4 */
     private static final int MINIMUM_DUNGEON_HEIGHT = 4;
     private static final int MINIMUM_DUNGEON_WIDTH = 4;
@@ -69,15 +71,9 @@ public class WumpusWorldDungeon
      * Utilizing a map instead of a grid allows us to have possible
      * non-rectangular dungeons
      */
-    private final Map<Vector2, RoomContents> dungeon_;
-    /*
-     * Store the Gold space & the Ladder space as an optimization. If we don't,
-     * we have to search through our map for the gold / ladder space *every*
-     * time we want to try and place a pit. Sifting through a map for a value is
-     * expensive - especially if the map is > 40k elements (default size!)
-     */
-    private Vector2 goldSpace_ = null;
-    private Vector2 ladderSpace_ = null;
+    private final Map<Vector2, DungeonTile> dungeon_;
+
+    private final Collection<DungeonEntity> dungeonEntities_;
 
     /*
      * Performance optimizations - store the min & max possible X & Y
@@ -123,8 +119,8 @@ public class WumpusWorldDungeon
         Validate.isTrue(height >= MINIMUM_DUNGEON_HEIGHT,
                 String.format("Cannot create a dungeon with width < %d", MINIMUM_DUNGEON_HEIGHT));
 
-        dungeon_ = new HashMap<Vector2, RoomContents>(DEFAULT_DUNGEON_WIDTH
-                * DEFAULT_DUNGEON_HEIGHT);
+        dungeon_ = new HashMap<Vector2, DungeonTile>(DEFAULT_DUNGEON_WIDTH * DEFAULT_DUNGEON_HEIGHT);
+        dungeonEntities_ = new HashSet<DungeonEntity>();
 
         /*
          * Fill up the dungeon with null (empty) spaces. We need some kind of
@@ -136,7 +132,7 @@ public class WumpusWorldDungeon
             for(int j = 0; j < height; ++j)
             {
                 final Vector2 space = new Vector2(i, j);
-                dungeon_.put(space, null);
+                dungeon_.put(space, new DungeonTile(DungeonTileType.EMPTY, space));
             }
         }
 
@@ -161,13 +157,12 @@ public class WumpusWorldDungeon
     public WumpusWorldDungeon(final WumpusWorldDungeon copy)
     {
         Validate.notNull(copy, "Cannot create a copy of a null WumpusWorldDungeon");
-        dungeon_ = new HashMap<Vector2, RoomContents>(copy.dungeon_);
+        dungeon_ = new HashMap<Vector2, DungeonTile>(copy.dungeon_);
         minXCoordinate_ = copy.minXCoordinate_;
         minYCoordinate_ = copy.minYCoordinate_;
         maxXCoordinate_ = copy.maxXCoordinate_;
         maxYCoordinate_ = copy.maxYCoordinate_;
-        goldSpace_ = copy.goldSpace_;
-        ladderSpace_ = copy.ladderSpace_;
+        dungeonEntities_ = new ArrayList<>(copy.dungeonEntities_);
     }
 
     /**
@@ -249,12 +244,6 @@ public class WumpusWorldDungeon
      */
     private boolean canReachLadder(final Vector2 source)
     {
-        if(!dungeon_.containsValue(RoomContents.LADDER))
-        {
-            /* We can't reach the ladder if there is no ladder in the dungeon */
-            return false;
-        }
-
         return areSpacesConnected(source, ladderSpace());
     }
 
@@ -282,49 +271,56 @@ public class WumpusWorldDungeon
      *            Space to check
      * @return True if the space is in the dungeon, false otherwise
      */
-    public boolean contains(final Vector2 space)
+    public boolean contains(final DungeonEntity entity)
     {
-        return dungeon_.containsKey(space);
+        if(entity instanceof DungeonTile)
+        {
+            final Vector2 tilePosition = entity.getPosition();
+            return dungeon_.containsKey(tilePosition);
+        }
+
+        return dungeonEntities_.contains(entity);
     }
 
-    /**
-     * Returns the RoomContents for the space in the dungeon, if any
-     *
-     * Note: Returns null if there are no contents at the space or if the space
-     * is outside the dungeon
-     *
-     * @param space
-     *            Space to determine contents of
-     * @return Contents for the space
-     */
-    public RoomContents contentsForSpace(final Vector2 space)
+    private boolean containsGold()
     {
-        return dungeon_.get(space);
+        return dungeonEntities_.stream().anyMatch(entity -> entity instanceof Gold);
     }
 
-    /**
-     * @return The set of RoomContents that are currently populating this
-     *         dungeon. No duplicate items.
-     */
-    private Collection<RoomContents> dungeonContents()
+    private boolean containsLadder()
     {
-        return dungeon_.values().stream().collect(Collectors.toSet());
+        return dungeonEntities_.stream().anyMatch(entity -> entity instanceof Ladder);
     }
 
-    /**
-     * Finds *A* space that contains the given RoomContents.
-     *
-     * If no such contents exist, returns null.
-     *
-     * @param contents
-     *            RoomContents to find a space foor
-     * @return *A* Space that contains the contents or null if no such contents
-     *         exist in the dungeon.
-     */
-    public Vector2 findSpaceFor(final RoomContents contents)
+    public Collection<DungeonEntity> contentsForSpace(final Vector2 space)
     {
-        return dungeon_.entrySet().stream().filter(entry -> entry.getValue() == contents)
-                .map(entry -> entry.getKey()).findFirst().orElse(null);
+        final Collection<DungeonEntity> entitiesOnSpace = new ArrayList<DungeonEntity>();
+        if(dungeon_.containsKey(space))
+        {
+            final DungeonTile tile = dungeon_.get(space);
+            entitiesOnSpace.add(tile);
+        }
+        dungeonEntities_.stream().filter(entity -> entity.getPosition().equals(space))
+                .forEach(entity -> entitiesOnSpace.add(entity));
+        return entitiesOnSpace;
+    }
+
+    // /**
+    // * Returns the dungeon as a Map of Vector2 to RoomContents
+    // *
+    // * Note: Modifying this Map has no impact whatsoever on the internal state
+    // * of the dungeon.
+    // *
+    // * @return The Dungeon as if it were a Map of Vector2 to RoomContents
+    // */
+    // public Map<Vector2, DungeonTile> getDungeonAsMap()
+    // {
+    // return new HashMap<Vector2, RoomContents>(dungeon_);
+    // }
+
+    private Set<DungeonEntity> dungeonContents()
+    {
+        return Collections.emptySet(); // TODO
     }
 
     /**
@@ -335,31 +331,27 @@ public class WumpusWorldDungeon
      *
      * @return The Dungeon as if it were a 2D array
      */
-    public RoomContents[][] getDungeonAsArray()
+    public DungeonEntity[][] getDungeonAsArray()
     {
         final int width = width();
         final int height = height();
-        final RoomContents[][] dungeon = new RoomContents[width][height];
+        final DungeonEntity[][] dungeon = new DungeonEntity[width][height];
         dungeon_.entrySet().forEach(spaceToRoomContents ->
         {
             final Vector2 space = spaceToRoomContents.getKey();
-            final RoomContents contents = spaceToRoomContents.getValue();
+            final DungeonEntity contents = spaceToRoomContents.getValue();
             dungeon[space.getX()][space.getY()] = contents;
         });
+        /*
+         * Override the "tile" value with whatever is there currently. TODO:
+         * Change this to Collection<DungeonEntity>[][]
+         */
+        dungeonEntities_.forEach(entity ->
+        {
+            final Vector2 space = entity.getPosition();
+            dungeon[space.getX()][space.getY()] = entity;
+        });
         return dungeon;
-    }
-
-    /**
-     * Returns the dungeon as a Map of Vector2 to RoomContents
-     *
-     * Note: Modifying this Map has no impact whatsoever on the internal state
-     * of the dungeon.
-     *
-     * @return The Dungeon as if it were a Map of Vector2 to RoomContents
-     */
-    public Map<Vector2, RoomContents> getDungeonAsMap()
-    {
-        return new HashMap<Vector2, RoomContents>(dungeon_);
     }
 
     /**
@@ -369,11 +361,27 @@ public class WumpusWorldDungeon
      */
     private Vector2 goldSpace()
     {
-        if(goldSpace_ == null)
+        return dungeonEntities_.stream().filter(entity -> (entity instanceof Gold)).findFirst()
+                .get().getPosition();
+    }
+
+    private boolean hasEmptySpaces()
+    {
+        final Set<Vector2> emptySpaces = dungeon_.values().stream()
+                .filter(tile -> tile.getTileType() == DungeonTileType.EMPTY)
+                .map(tile -> tile.getPosition()).collect(Collectors.toSet());
+        dungeonEntities_.forEach(entity ->
         {
-            goldSpace_ = findSpaceFor(RoomContents.GOLD);
-        }
-        return goldSpace_;
+            final Vector2 space = entity.getPosition();
+            emptySpaces.remove(space);
+        });
+        return !emptySpaces.isEmpty();
+    }
+
+    private boolean hasPits()
+    {
+        return dungeon_.values().stream()
+                .anyMatch(tile -> tile.getTileType() == DungeonTileType.PIT);
     }
 
     /**
@@ -383,6 +391,29 @@ public class WumpusWorldDungeon
     public int height()
     {
         return (maxYCoordinate_ - minYCoordinate_) + 1;
+    }
+
+    private boolean isBlank()
+    {
+        return dungeonEntities_.isEmpty()
+                && (!dungeon_.values().stream()
+                        .anyMatch(tile -> tile.getTileType() != DungeonTileType.EMPTY));
+    }
+
+    private boolean isSpaceOccupied(final Vector2 space)
+    {
+        if(!dungeon_.containsKey(space))
+        {
+            return false;
+        }
+
+        final DungeonTile tile = dungeon_.get(space);
+        if(tile.getTileType() != DungeonTileType.EMPTY)
+        {
+            return true;
+        }
+
+        return dungeonEntities_.stream().anyMatch(entity -> entity.getPosition().equals(space));
     }
 
     /**
@@ -398,7 +429,15 @@ public class WumpusWorldDungeon
      */
     private boolean isSpacePassable(final Vector2 position)
     {
-        return dungeon_.containsKey(position) && RoomContents.isPassable(dungeon_.get(position));
+        final boolean dungeonTilePassable = dungeon_.containsKey(position)
+                && dungeon_.get(position).isPassable();
+        if(dungeonTilePassable)
+        {
+            return !dungeonEntities_.stream()
+                    .filter(entity -> Objects.equals(entity.getPosition(), position))
+                    .anyMatch(entity -> !entity.isPassable());
+        }
+        return false;
     }
 
     /**
@@ -408,11 +447,8 @@ public class WumpusWorldDungeon
      */
     private Vector2 ladderSpace()
     {
-        if(ladderSpace_ == null)
-        {
-            ladderSpace_ = findSpaceFor(RoomContents.LADDER);
-        }
-        return ladderSpace_;
+        return dungeonEntities_.stream().filter(entity -> (entity instanceof Ladder)).findFirst()
+                .get().getPosition();
     }
 
     /**
@@ -467,14 +503,9 @@ public class WumpusWorldDungeon
      */
     private void placeGold()
     {
-        Validate.isTrue(
-                !dungeon_.containsValue(RoomContents.PIT)
-                        && !dungeon_.containsValue(RoomContents.GOLD)
-                        && dungeon_.containsValue(RoomContents.LADDER)
-                        && dungeon_.containsValue(EMPTY), String.format(
-                        "Cannot place gold in a dungeon with pits, with gold, "
-                                + "without a ladder, or without empty spaces. "
-                                + "This dungeon already contains %s", dungeonContents()));
+        Validate.isTrue(!hasPits() && !containsGold() && containsLadder() && hasEmptySpaces(),
+                "Cannot place gold in a dungeon with pits, with gold, "
+                        + "without a ladder, or without empty spaces.");
 
         Vector2 goldSpace;
         do
@@ -485,10 +516,12 @@ public class WumpusWorldDungeon
          * Make sure the chosen position exists in the map, doesn't have
          * anything on it, and is reachable from the ladder
          */
-        while(!dungeon_.containsKey(goldSpace) || dungeon_.get(goldSpace) != EMPTY
+        while(!dungeon_.containsKey(goldSpace) || isSpaceOccupied(goldSpace)
                 || !canReachLadder(goldSpace));
-        /* And cement it in */
-        dungeon_.put(goldSpace, RoomContents.GOLD);
+
+        final DungeonTile goldTile = dungeon_.get(goldSpace);
+        final Gold gold = new Gold(goldTile);
+        dungeonEntities_.add(gold);
     }
 
     /**
@@ -501,8 +534,7 @@ public class WumpusWorldDungeon
      */
     private void placeLadder()
     {
-        Validate.isTrue(dungeon_.values().stream().distinct().count() == 1
-                && dungeon_.values().contains(EMPTY), String.format(
+        Validate.isTrue(isBlank(), String.format(
                 "Cannot place a ladder in a pre-populated dungeon or a"
                         + " dungeon without any empty spaces."
                         + " This dungeon already contains %s", dungeonContents()));
@@ -519,7 +551,8 @@ public class WumpusWorldDungeon
          */
         while(!dungeon_.containsKey(ladderSpace));
 
-        dungeon_.put(ladderSpace, RoomContents.LADDER);
+        final Ladder ladder = new Ladder(ladderSpace);
+        dungeonEntities_.add(ladder);
     }
 
     /**
@@ -537,13 +570,10 @@ public class WumpusWorldDungeon
      */
     private void placePits()
     {
-        Validate.isTrue(
-                dungeon_.containsValue(RoomContents.LADDER)
-                        && dungeon_.containsValue(RoomContents.GOLD)
-                        && dungeon_.containsValue(EMPTY), String.format(
-                        "Cannot place pits in a dungeon without a ladder, "
-                                + "without gold, or without empty spaces."
-                                + " This dungeon already contains %s", dungeonContents()));
+        Validate.isTrue(containsLadder() && containsGold() && hasEmptySpaces(), String.format(
+                "Cannot place pits in a dungeon without a ladder, "
+                        + "without gold, or without empty spaces."
+                        + " This dungeon already contains %s", dungeonContents()));
 
         final double pitPercentage = pitPercentage();
         final long numPits = Math.round(dungeon_.size() * pitPercentage);
@@ -571,10 +601,10 @@ public class WumpusWorldDungeon
                 pitSpace = probableSpace();
             }
             /* Make sure we've picked a valid, empty space */
-            while(!dungeon_.containsKey(pitSpace) || dungeon_.get(pitSpace) != EMPTY);
+            while(!dungeon_.containsKey(pitSpace) || isSpaceOccupied(pitSpace));
 
             /* Place the pit so we can evaluate it's "goodness" */
-            dungeon_.put(pitSpace, RoomContents.PIT);
+            dungeon_.replace(pitSpace, new DungeonTile(DungeonTileType.PIT, pitSpace));
             if(canReachLadderFromGold())
             {
                 /*
@@ -587,7 +617,7 @@ public class WumpusWorldDungeon
             else
             {
                 /* Remove the pit, it's no good! */
-                dungeon_.put(pitSpace, EMPTY);
+                dungeon_.replace(pitSpace, new DungeonTile(DungeonTileType.EMPTY, pitSpace));
                 ++numPlacementRetries;
             }
         }
@@ -605,38 +635,36 @@ public class WumpusWorldDungeon
      */
     private void placeWumpus()
     {
-        Validate.isTrue(
-                dungeon_.containsValue(RoomContents.LADDER)
-                        && dungeon_.containsValue(RoomContents.GOLD)
-                        && dungeon_.containsValue(EMPTY), String.format(
-                        "Cannot place a wumpus in a dungeon without gold, "
-                                + "without a ladder, or without empty spaces."
-                                + " This dungeon already contains %s", dungeonContents()));
+        Validate.isTrue(containsLadder() && containsGold() && hasEmptySpaces(), String.format(
+                "Cannot place a wumpus in a dungeon without gold, "
+                        + "without a ladder, or without empty spaces."
+                        + " This dungeon already contains %s", dungeonContents()));
 
-        Vector2 wumpusSpace;
         final int maxWumpusRetries = 1000;
+        boolean placedWumpus = false;
         for(int numWumpusRetries = 0; numWumpusRetries < maxWumpusRetries; ++numWumpusRetries)
         {
+            Vector2 wumpusSpace;
             do
             {
-                final int x = probableXCoordinate();
-                final int y = probableYCoordinate();
-                wumpusSpace = new Vector2(x, y);
+                wumpusSpace = probableSpace();
             }
-            while(!dungeon_.containsKey(wumpusSpace) || dungeon_.get(wumpusSpace) != EMPTY);
+            while(!dungeon_.containsKey(wumpusSpace) || isSpaceOccupied(wumpusSpace));
 
-            dungeon_.put(wumpusSpace, RoomContents.WUMPUS);
+            final Wumpus wumpus = new Wumpus(wumpusSpace);
+            dungeonEntities_.add(wumpus);
             if(canReachLadderFromGold())
             {
+                placedWumpus = true;
                 break;
             }
             else
             {
-                dungeon_.put(wumpusSpace, EMPTY);
+                dungeonEntities_.remove(wumpus);
             }
         }
 
-        if(!dungeon_.containsValue(RoomContents.WUMPUS))
+        if(!placedWumpus)
         {
             throw new RuntimeException("Could not place the wumpus!");
         }
@@ -700,6 +728,11 @@ public class WumpusWorldDungeon
         placePits();
     }
 
+    public DungeonTile tileForSpace(final Vector2 space)
+    {
+        return dungeon_.get(space);
+    }
+
     @Override
     public String toString()
     {
@@ -732,26 +765,29 @@ public class WumpusWorldDungeon
         return (maxXCoordinate_ - minXCoordinate_) + 1;
     }
 
-    public WumpusWorldDungeon withGoldAt(final Vector2 position)
-    {
-        Validate.isTrue(dungeon_.containsKey(position), "Cannot create a WumpusWorldDungeon "
-                + "with the gold outside of the dungeon");
-        Validate.isTrue(dungeon_.get(position) == EMPTY, "Cannot create a WumpusWorldDungeon "
-                + "with the gold on a non-empty space");
-        final Vector2 goldSpace = goldSpace();
-        final WumpusWorldDungeon copy = new WumpusWorldDungeon(this);
-        copy.dungeon_.put(goldSpace, EMPTY);
-        copy.dungeon_.put(position, RoomContents.GOLD);
-        return copy;
-    }
+    // public WumpusWorldDungeon withGoldAt(final Vector2 position)
+    // {
+    // Validate.isTrue(dungeon_.containsKey(position),
+    // "Cannot create a WumpusWorldDungeon "
+    // + "with the gold outside of the dungeon");
+    // Validate.isTrue(dungeon_.get(position) == EMPTY,
+    // "Cannot create a WumpusWorldDungeon "
+    // + "with the gold on a non-empty space");
+    // final Vector2 goldSpace = goldSpace();
+    // final WumpusWorldDungeon copy = new WumpusWorldDungeon(this);
+    // copy.dungeon_.put(goldSpace, EMPTY);
+    // copy.dungeon_.put(position, RoomContents.GOLD);
+    // return copy;
+    // }
 
-    public WumpusWorldDungeon withNoGold()
-    {
-        Validate.isTrue(dungeon_.containsValue(RoomContents.GOLD),
-                "Cannot remove gold from a WumpusWorldDungeon" + " that has no gold in it.");
-        final Vector2 goldSpace = goldSpace();
-        final WumpusWorldDungeon copy = new WumpusWorldDungeon(this);
-        copy.dungeon_.put(goldSpace, EMPTY);
-        return copy;
-    }
+    // public WumpusWorldDungeon withNoGold()
+    // {
+    // Validate.isTrue(dungeon_.containsValue(RoomContents.GOLD),
+    // "Cannot remove gold from a WumpusWorldDungeon" +
+    // " that has no gold in it.");
+    // final Vector2 goldSpace = goldSpace();
+    // final WumpusWorldDungeon copy = new WumpusWorldDungeon(this);
+    // copy.dungeon_.put(goldSpace, EMPTY);
+    // return copy;
+    // }
 }
