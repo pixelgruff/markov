@@ -18,6 +18,14 @@ import java.util.stream.Collectors;
 import utils.ClosedRange;
 import utils.Validate;
 import utils.Vector2;
+import wumpusworld.entities.DungeonEntity;
+import wumpusworld.entities.DungeonExplorer;
+import wumpusworld.entities.DungeonTile;
+import wumpusworld.entities.DungeonTileType;
+import wumpusworld.entities.Gold;
+import wumpusworld.entities.Ladder;
+import wumpusworld.entities.Wumpus;
+import core.Player;
 
 /**
  * Immutable, procedurally generated dungeon.
@@ -292,6 +300,14 @@ public class WumpusWorldDungeon
         return dungeonEntities_.stream().anyMatch(entity -> entity instanceof Ladder);
     }
 
+    public DungeonExplorer getDungeonExplorer(final Player player)
+    {
+        return (DungeonExplorer) dungeonEntities_.stream()
+                .filter(entity -> entity instanceof DungeonExplorer)
+                .filter(explorer -> ((DungeonExplorer) explorer).getOwner().equals(player))
+                .findFirst().orElse(null);
+    }
+
     public Collection<DungeonEntity> contentsForSpace(final Vector2 space)
     {
         final Collection<DungeonEntity> entitiesOnSpace = new ArrayList<DungeonEntity>();
@@ -331,11 +347,11 @@ public class WumpusWorldDungeon
      *
      * @return The Dungeon as if it were a 2D array
      */
-    public DungeonEntity[][] getDungeonAsArray()
+    public DungeonEntity [][] getDungeonAsArray()
     {
         final int width = width();
         final int height = height();
-        final DungeonEntity[][] dungeon = new DungeonEntity[width][height];
+        final DungeonEntity [][] dungeon = new DungeonEntity [width] [height];
         dungeon_.entrySet().forEach(spaceToRoomContents ->
         {
             final Vector2 space = spaceToRoomContents.getKey();

@@ -1,4 +1,4 @@
-package wumpusworld;
+package wumpusworld.entities;
 
 import java.util.Objects;
 
@@ -10,12 +10,25 @@ public final class DungeonTile implements DungeonEntity
     private final Vector2 position_;
     private final DungeonTileType tileType_;
 
+    public DungeonTile(final DungeonTile copy)
+    {
+        Validate.notNull(copy, "Cannot create a DungeonTile from a null copy");
+        position_ = copy.position_;
+        tileType_ = copy.tileType_;
+    }
+
     public DungeonTile(final DungeonTileType tileType, final Vector2 position)
     {
         Validate.notNull(tileType, "Cannot create a DungeonTile with a null tile type");
         Validate.notNull(position, "Cannot create a DungeonTile with a null position");
         position_ = position;
         tileType_ = tileType;
+    }
+
+    @Override
+    public DungeonEntity copy()
+    {
+        return new DungeonTile(this);
     }
 
     @Override

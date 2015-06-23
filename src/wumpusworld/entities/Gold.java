@@ -1,4 +1,4 @@
-package wumpusworld;
+package wumpusworld.entities;
 
 import java.util.Objects;
 
@@ -7,6 +7,17 @@ public final class Gold extends Item
     public Gold(final DungeonEntity owner)
     {
         super(owner);
+    }
+
+    public Gold(final Gold copy)
+    {
+        this(copy.getOwner());
+    }
+
+    @Override
+    public DungeonEntity copy()
+    {
+        return new Gold(this);
     }
 
     @Override
@@ -46,5 +57,11 @@ public final class Gold extends Item
     {
         /* This gold is worth 1 million dollars */
         return 1000000;
+    }
+
+    @Override
+    public Item withOwner(final DungeonEntity owner)
+    {
+        return new Gold(owner);
     }
 }

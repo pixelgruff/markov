@@ -1,4 +1,4 @@
-package wumpusworld;
+package wumpusworld.entities;
 
 import java.util.Objects;
 
@@ -9,10 +9,22 @@ public final class Ladder implements DungeonEntity
 {
     private final Vector2 position_;
 
+    public Ladder(final Ladder copy)
+    {
+        Validate.notNull(copy, "Cannot create a Ladder from a null copy");
+        position_ = copy.position_;
+    }
+
     public Ladder(final Vector2 position)
     {
         Validate.notNull(position, "Cannot create a Ladder at a null position");
         position_ = position;
+    }
+
+    @Override
+    public DungeonEntity copy()
+    {
+        return new Ladder(this);
     }
 
     @Override

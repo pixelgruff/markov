@@ -1,6 +1,6 @@
 package utils;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -13,25 +13,42 @@ import java.util.Objects;
  */
 public final class Vector2
 {
+    public static Vector2 NORTH = new Vector2(0, 1);
+    public static Vector2 NORTHEAST = new Vector2(1, 1);
+    public static Vector2 EAST = new Vector2(1, 0);
+    public static Vector2 SOUTHEAST = new Vector2(1, -1);
+    public static Vector2 SOUTH = new Vector2(0, -1);
+    public static Vector2 SOUTHWEST = new Vector2(-1, -1);
+    public static Vector2 WEST = new Vector2(-1, 0);
+    public static Vector2 NORTHWEST = new Vector2(-1, 1);
+
+    private static final Vector2 [] CARDINAL_DIRECTIONS = { NORTH, EAST, SOUTH, WEST };
+    private static final Vector2 [] ALL_DIRECTIONS = { NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH,
+            SOUTHWEST, WEST, NORTHWEST };
+
     public static List<Vector2> cardinalDirections()
     {
-        final int totalDirections = 4;
-        final List<Vector2> cardinalDirections = new ArrayList<Vector2>(totalDirections);
-        /* TODO: Clean up, this is messy */
-        for(int dX = -1; dX <= 1; ++dX)
-        {
-            for(int dY = -1; dY <= 1; ++dY)
-            {
-                if(dY == 0 || dX == 0)
-                {
-                    continue;
-                }
-                final Vector2 cardinalDirection = new Vector2(dX, dY);
-                cardinalDirections.add(cardinalDirection);
-            }
+        return Arrays.asList(CARDINAL_DIRECTIONS);
+    }
 
+    public static Vector2 nextCardinalDirection(final Vector2 direction)
+    {
+        final int index = cardinalDirections().indexOf(direction);
+        if(index >= 0)
+        {
+            return cardinalDirections().get((index + 1) % cardinalDirections().size());
         }
-        return cardinalDirections;
+        return null;
+    }
+
+    public static Vector2 previousCardinalDirection(final Vector2 direction)
+    {
+        final int index = cardinalDirections().indexOf(direction);
+        if(index >= 0)
+        {
+            return cardinalDirections().get((index - 1) % cardinalDirections().size());
+        }
+        return null;
     }
 
     /**
@@ -48,27 +65,7 @@ public final class Vector2
      */
     public static List<Vector2> directionalVectors()
     {
-        final int totalDirections = 8;
-        final List<Vector2> directionalVectors = new ArrayList<Vector2>(totalDirections);
-        /* TODO: Clean up, this is messy */
-        for(int dX = -1; dX <= 1; ++dX)
-        {
-            for(int dY = -1; dY <= 1; ++dY)
-            {
-                if(dX == 0 && dY == 0)
-                {
-                    /*
-                     * These directions specify actual "movement", which a
-                     * 0-direction vector does not have...
-                     */
-                    continue;
-                }
-
-                final Vector2 directionalVector = new Vector2(dX, dY);
-                directionalVectors.add(directionalVector);
-            }
-        }
-        return directionalVectors;
+        return Arrays.asList(ALL_DIRECTIONS);
     }
 
     private final int x_;
@@ -121,7 +118,10 @@ public final class Vector2
      */
     public Vector2 add(final Vector2 other)
     {
-        Validate.notNull(other, "Cannot add a null vector");
+        if(other == null)
+        {
+            return this;
+        }
         return new Vector2(x_ + other.x_, y_ + other.y_);
     }
 
@@ -228,7 +228,10 @@ public final class Vector2
      */
     public Vector2 subtract(final Vector2 other)
     {
-        Validate.notNull(other, "Cannot subtract a null vector");
+        if(other == null)
+        {
+            return this;
+        }
         return new Vector2(x_ - other.x_, y_ - other.y_);
     }
 

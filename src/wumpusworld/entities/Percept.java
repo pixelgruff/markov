@@ -1,4 +1,5 @@
-package wumpusworld;
+package wumpusworld.entities;
+
 
 public enum Percept
 {

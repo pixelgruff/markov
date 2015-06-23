@@ -1,4 +1,4 @@
-package wumpusworld;
+package wumpusworld.entities;
 
 import utils.Validate;
 import utils.Vector2;
@@ -11,6 +11,18 @@ public final class Wumpus implements DungeonEntity
     {
         Validate.notNull(position, "Cannot create a Wumpus with a null position");
         position_ = position;
+    }
+
+    public Wumpus(final Wumpus copy)
+    {
+        Validate.notNull(copy, "Cannot create a Wumpus from a null copy");
+        position_ = copy.position_;
+    }
+
+    @Override
+    public DungeonEntity copy()
+    {
+        return new Wumpus(this);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package wumpusworld;
+package wumpusworld.entities;
 
 import java.util.Objects;
 
@@ -17,6 +17,12 @@ public class BowAndArrow extends Item
     public BowAndArrow(final DungeonEntity owner)
     {
         super(owner);
+    }
+
+    @Override
+    public DungeonEntity copy()
+    {
+        return new BowAndArrow(this);
     }
 
     @Override
@@ -53,5 +59,13 @@ public class BowAndArrow extends Item
     public String shortToString()
     {
         return "A";
+    }
+
+    @Override
+    public Item withOwner(final DungeonEntity owner)
+    {
+        final BowAndArrow copy = new BowAndArrow(owner);
+        copy.hasArrows_ = hasArrows_;
+        return copy;
     }
 }

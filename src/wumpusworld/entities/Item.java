@@ -1,4 +1,4 @@
-package wumpusworld;
+package wumpusworld.entities;
 
 import java.util.Objects;
 
@@ -43,4 +43,6 @@ public abstract class Item implements DungeonEntity
     {
         return Objects.hash(getPosition(), getOwner());
     }
+
+    public abstract Item withOwner(final DungeonEntity owner);
 }
