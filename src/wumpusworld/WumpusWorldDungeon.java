@@ -308,6 +308,12 @@ public class WumpusWorldDungeon
                 .findFirst().orElse(null);
     }
 
+    public Collection<Player> getPlayers()
+    {
+        return dungeonEntities_.stream().filter(entity -> entity instanceof DungeonExplorer)
+                .map(entity -> ((DungeonExplorer) entity).getOwner()).collect(Collectors.toSet());
+    }
+
     public Collection<DungeonEntity> contentsForSpace(final Vector2 space)
     {
         final Collection<DungeonEntity> entitiesOnSpace = new ArrayList<DungeonEntity>();

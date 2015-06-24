@@ -7,6 +7,7 @@ import java.util.Map;
 
 import utils.ClosedRange;
 import utils.Validate;
+import wumpusworld.entities.DungeonExplorer;
 import wumpusworld.states.WumpusWorldInternalState;
 import wumpusworld.states.WumpusWorldState;
 import core.Player;
@@ -38,7 +39,15 @@ public class WumpusWorldRules implements Rules<WumpusWorldState, WumpusWorldActi
     @Override
     public WumpusWorldState generateInitialState(final Collection<Player> players)
     {
-        Validate.notEmpty(players, "Cannot create a WumpusWorldDunegon without any players");
+        final int maxPlayers = 1;
+        Validate.notEmpty(players, "Cannot create a WumpusWorldDungeon" + " without any players");
+        Validate.isTrue(players.size() == maxPlayers, String.format(
+                "Cannot create a WumpusWorldDungeon " + "with more than %d players", maxPlayers));
+
+        final Player player = players.stream().findFirst().get();
+
+        final WumpusWorldDungeon dungeon = new WumpusWorldDungeon();
+        final DungeonExplorer explorer = new DungeonExplorer(player);
         // TODO Auto-generated method stub
         return null;
     }
@@ -51,6 +60,7 @@ public class WumpusWorldRules implements Rules<WumpusWorldState, WumpusWorldActi
         {
             return Collections.emptyList();
         }
+
         return Arrays.asList(WumpusWorldAction.values());
     }
 
