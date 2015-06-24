@@ -16,6 +16,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import utils.ClosedRange;
+import utils.RandomUtils;
 import utils.Validate;
 import utils.Vector2;
 import wumpusworld.entities.DungeonEntity;
@@ -173,6 +174,15 @@ public class WumpusWorldDungeon
         dungeonEntities_ = new ArrayList<>(copy.dungeonEntities_);
     }
 
+    public void addDungeonExplorerForPlayer(final Player player)
+    {
+        final Vector2 ladder = ladderSpace();
+        /* Mix up what direction the adventurer starts, just for shits */
+        final Vector2 randomDirection = RandomUtils.randomOf(Vector2.cardinalDirections());
+        final DungeonExplorer explorer = new DungeonExplorer(player, ladder, randomDirection);
+        dungeonEntities_.add(explorer);
+    }
+
     /**
      * Performs a modified A* search to determine if the two spaces are
      * connected. Order of arguments does not particularly matter.
@@ -290,6 +300,11 @@ public class WumpusWorldDungeon
         return dungeonEntities_.contains(entity);
     }
 
+    public boolean contains(final Vector2 space)
+    {
+        return dungeon_.containsKey(space);
+    }
+
     private boolean containsGold()
     {
         return dungeonEntities_.stream().anyMatch(entity -> entity instanceof Gold);
@@ -299,46 +314,6 @@ public class WumpusWorldDungeon
     {
         return dungeonEntities_.stream().anyMatch(entity -> entity instanceof Ladder);
     }
-
-    public DungeonExplorer getDungeonExplorer(final Player player)
-    {
-        return (DungeonExplorer) dungeonEntities_.stream()
-                .filter(entity -> entity instanceof DungeonExplorer)
-                .filter(explorer -> ((DungeonExplorer) explorer).getOwner().equals(player))
-                .findFirst().orElse(null);
-    }
-
-    public Collection<Player> getPlayers()
-    {
-        return dungeonEntities_.stream().filter(entity -> entity instanceof DungeonExplorer)
-                .map(entity -> ((DungeonExplorer) entity).getOwner()).collect(Collectors.toSet());
-    }
-
-    public Collection<DungeonEntity> contentsForSpace(final Vector2 space)
-    {
-        final Collection<DungeonEntity> entitiesOnSpace = new ArrayList<DungeonEntity>();
-        if(dungeon_.containsKey(space))
-        {
-            final DungeonTile tile = dungeon_.get(space);
-            entitiesOnSpace.add(tile);
-        }
-        dungeonEntities_.stream().filter(entity -> entity.getPosition().equals(space))
-                .forEach(entity -> entitiesOnSpace.add(entity));
-        return entitiesOnSpace;
-    }
-
-    // /**
-    // * Returns the dungeon as a Map of Vector2 to RoomContents
-    // *
-    // * Note: Modifying this Map has no impact whatsoever on the internal state
-    // * of the dungeon.
-    // *
-    // * @return The Dungeon as if it were a Map of Vector2 to RoomContents
-    // */
-    // public Map<Vector2, DungeonTile> getDungeonAsMap()
-    // {
-    // return new HashMap<Vector2, RoomContents>(dungeon_);
-    // }
 
     private Set<DungeonEntity> dungeonContents()
     {
@@ -353,11 +328,11 @@ public class WumpusWorldDungeon
      *
      * @return The Dungeon as if it were a 2D array
      */
-    public DungeonEntity [][] getDungeonAsArray()
+    public DungeonEntity[][] getDungeonAsArray()
     {
         final int width = width();
         final int height = height();
-        final DungeonEntity [][] dungeon = new DungeonEntity [width] [height];
+        final DungeonEntity[][] dungeon = new DungeonEntity[width][height];
         dungeon_.entrySet().forEach(spaceToRoomContents ->
         {
             final Vector2 space = spaceToRoomContents.getKey();
@@ -374,6 +349,33 @@ public class WumpusWorldDungeon
             dungeon[space.getX()][space.getY()] = entity;
         });
         return dungeon;
+    }
+
+    public DungeonExplorer getDungeonExplorer(final Player player)
+    {
+        return (DungeonExplorer) dungeonEntities_.stream()
+                .filter(entity -> entity instanceof DungeonExplorer)
+                .filter(explorer -> ((DungeonExplorer) explorer).getOwner().equals(player))
+                .findFirst().orElse(null);
+    }
+
+    public Collection<DungeonEntity> getEntitiesOnSpace(final Vector2 space)
+    {
+        final Collection<DungeonEntity> entitiesOnSpace = new ArrayList<DungeonEntity>();
+        if(dungeon_.containsKey(space))
+        {
+            final DungeonTile tile = dungeon_.get(space);
+            entitiesOnSpace.add(tile);
+        }
+        dungeonEntities_.stream().filter(entity -> entity.getPosition().equals(space))
+                .forEach(entity -> entitiesOnSpace.add(entity));
+        return entitiesOnSpace;
+    }
+
+    public Collection<Player> getPlayers()
+    {
+        return dungeonEntities_.stream().filter(entity -> entity instanceof DungeonExplorer)
+                .map(entity -> ((DungeonExplorer) entity).getOwner()).collect(Collectors.toSet());
     }
 
     /**
@@ -467,7 +469,7 @@ public class WumpusWorldDungeon
      *
      * @return The space on the board that has the ladder
      */
-    private Vector2 ladderSpace()
+    public Vector2 ladderSpace()
     {
         return dungeonEntities_.stream().filter(entity -> (entity instanceof Ladder)).findFirst()
                 .get().getPosition();
@@ -786,30 +788,4 @@ public class WumpusWorldDungeon
     {
         return (maxXCoordinate_ - minXCoordinate_) + 1;
     }
-
-    // public WumpusWorldDungeon withGoldAt(final Vector2 position)
-    // {
-    // Validate.isTrue(dungeon_.containsKey(position),
-    // "Cannot create a WumpusWorldDungeon "
-    // + "with the gold outside of the dungeon");
-    // Validate.isTrue(dungeon_.get(position) == EMPTY,
-    // "Cannot create a WumpusWorldDungeon "
-    // + "with the gold on a non-empty space");
-    // final Vector2 goldSpace = goldSpace();
-    // final WumpusWorldDungeon copy = new WumpusWorldDungeon(this);
-    // copy.dungeon_.put(goldSpace, EMPTY);
-    // copy.dungeon_.put(position, RoomContents.GOLD);
-    // return copy;
-    // }
-
-    // public WumpusWorldDungeon withNoGold()
-    // {
-    // Validate.isTrue(dungeon_.containsValue(RoomContents.GOLD),
-    // "Cannot remove gold from a WumpusWorldDungeon" +
-    // " that has no gold in it.");
-    // final Vector2 goldSpace = goldSpace();
-    // final WumpusWorldDungeon copy = new WumpusWorldDungeon(this);
-    // copy.dungeon_.put(goldSpace, EMPTY);
-    // return copy;
-    // }
 }
