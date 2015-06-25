@@ -51,12 +51,7 @@ public class WumpusWorldRules implements Rules<WumpusWorldState, WumpusWorldActi
                 String.format("Cannot create a WumpusWorldDungeon with "
                         + "%d players. Valid amounts: ", players.size(), numberOfPlayers()));
 
-        final Player player = players.stream().findFirst().get();
-
-        final WumpusWorldDungeon dungeon = new WumpusWorldDungeon();
-        dungeon.addDungeonExplorerForPlayer(player);
-
-        final WumpusWorldInternalState internalStartingState = new WumpusWorldInternalState(dungeon);
+        final WumpusWorldInternalState internalStartingState = new WumpusWorldInternalState(players);
         return internalStartingState;
     }
 

@@ -13,7 +13,6 @@ public class Iterators
         Validate.notNull(iterable, "Cannot create a cyclic iterator for a null iterable");
         return new Iterator<T>()
         {
-
             private Iterator<T> iterator_ = iterable.iterator();
 
             @Override

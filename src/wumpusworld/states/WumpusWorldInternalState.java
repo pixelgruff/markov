@@ -158,5 +158,9 @@ public class WumpusWorldInternalState implements WumpusWorldState
                 "Cannot set the state of a player who is " + "not currently active");
         Validate.notNull(state, "Cannot assign " + player + " a null state");
         playerStates_.put(player, state);
+        if(state.isTerminal())
+        {
+            players_.remove(player);
+        }
     }
 }
