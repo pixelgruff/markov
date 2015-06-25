@@ -171,7 +171,8 @@ public class WumpusWorldDungeon
         minYCoordinate_ = copy.minYCoordinate_;
         maxXCoordinate_ = copy.maxXCoordinate_;
         maxYCoordinate_ = copy.maxYCoordinate_;
-        dungeonEntities_ = new ArrayList<>(copy.dungeonEntities_);
+        dungeonEntities_ = copy.dungeonEntities_.stream().map(entity -> entity.copy())
+                .collect(Collectors.toList());
     }
 
     public void addDungeonExplorerForPlayer(final Player player)
