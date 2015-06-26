@@ -37,7 +37,7 @@ public interface Rules<S, A>
      * @param p
      * @return
      */
-    public S filterState(final S state, final Player p);
+    public S filterState(final S state, final Player player);
 
     /**
      * Create the default initial state for this game
@@ -92,7 +92,7 @@ public interface Rules<S, A>
      * @param p
      * @return
      */
-    public Score score(final S state, final Player p);
+    public Score score(final S state, final Player player);
 
     /**
      * Scores for all players for a particular game state

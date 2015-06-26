@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import utils.ClosedRange;
@@ -12,10 +13,13 @@ import utils.Vector2;
 import wumpusworld.entities.DungeonExplorer;
 import wumpusworld.entities.DungeonTile;
 import wumpusworld.entities.DungeonTileType;
+import wumpusworld.entities.Gold;
 import wumpusworld.entities.Item;
+import wumpusworld.entities.Percept;
 import wumpusworld.entities.Wumpus;
 import wumpusworld.states.PlayerState;
 import wumpusworld.states.WumpusWorldInternalState;
+import wumpusworld.states.WumpusWorldPlayerState;
 import wumpusworld.states.WumpusWorldState;
 import core.Player;
 import core.Rules;
@@ -32,15 +36,16 @@ public class WumpusWorldRules implements Rules<WumpusWorldState, WumpusWorldActi
     @Override
     public WumpusWorldState copyState(final WumpusWorldState state)
     {
-        // TODO Auto-generated method stub
-        return null;
+        Validate.notNull(state, "Cannot copy a null WumpusWorldState!");
+        return state.copy();
     }
 
     @Override
-    public WumpusWorldState filterState(final WumpusWorldState state, final Player p)
+    public WumpusWorldState filterState(final WumpusWorldState state, final Player player)
     {
-        // TODO Auto-generated method stub
-        return null;
+        Validate.notNull(state, "Cannot filter a null WumpusWorldState");
+        final Collection<Percept> perceptsForPlayer = state.getPerceptsForPlayer(player);
+        return new WumpusWorldPlayerState(player, perceptsForPlayer);
     }
 
     @Override
@@ -72,9 +77,8 @@ public class WumpusWorldRules implements Rules<WumpusWorldState, WumpusWorldActi
     @Override
     public Player getCurrentPlayer(final WumpusWorldState state)
     {
-        return state.
-        // TODO Auto-generated method stub
-        return null;
+        Validate.notNull(state, "Cannot determine the current player for a null WumpusWorldState");
+        return state.getCurrentPlayer();
     }
 
     @Override
@@ -91,7 +95,7 @@ public class WumpusWorldRules implements Rules<WumpusWorldState, WumpusWorldActi
     }
 
     @Override
-    public Score score(final WumpusWorldState state, final Player p)
+    public Score score(final WumpusWorldState state, final Player player)
     {
         // TODO Auto-generated method stub
         return null;
@@ -107,20 +111,21 @@ public class WumpusWorldRules implements Rules<WumpusWorldState, WumpusWorldActi
     @Override
     public WumpusWorldState transition(final WumpusWorldState state, final WumpusWorldAction action)
     {
-        if(!(state instanceof WumpusWorldInternalState))
-        {
-            throw new RuntimeException("Can not transition without a proper "
-                    + "reference to our internal state. "
-                    + "Did you accidentally pass in a filtered state?");
-        }
+        Validate.isTrue(state instanceof WumpusWorldInternalState,
+                "Can not transition without a proper reference to our internal state. "
+                        + "Did you accidentally pass in a filtered state?");
+        Validate.notNull(action, "Cannot transition states with a null action");
+        final Player player = action.getPlayer();
+        Validate.isTrue(Objects.equals(state.getCurrentPlayer(), player),
+                "Cannot transition states for an " + "action made with an invalid player");
+        Validate.isTrue(getAvailableActions(player, state).contains(action),
+                "Cannot take an invalid action");
 
         final WumpusWorldInternalState internalState = (WumpusWorldInternalState) state;
         final WumpusWorldDungeon dungeon = internalState.getDungeon();
-        final DungeonExplorer explorer = dungeon.getDungeonExplorer(action.getPlayer());
+        final DungeonExplorer explorer = dungeon.getDungeonExplorer(player);
         Validate.notNull(explorer, "Cannot transition a null DungeonExplorer");
         final Vector2 position = explorer.getPosition();
-
-        // TODO: Validate player
 
         PlayerState playerState = null;
 
@@ -136,6 +141,7 @@ public class WumpusWorldRules implements Rules<WumpusWorldState, WumpusWorldActi
             explorer.release();
             // TODO: Figure out how to add the item back into the dungeon
         case GRAB:
+        {
             final Item item = dungeon.getEntitiesOnSpace(position).stream()
                     .filter(entity -> entity instanceof Item).map(entity -> (Item) entity)
                     .findFirst().orElse(null);
@@ -144,6 +150,13 @@ public class WumpusWorldRules implements Rules<WumpusWorldState, WumpusWorldActi
                 explorer.grab(item);
             }
             break;
+        }
+        case CLIMB:
+            if(Objects.equals(dungeon.ladderSpace(), position)
+                    && explorer.getItems().stream().anyMatch(item -> item instanceof Gold))
+            {
+                playerState = PlayerState.PLAYER_ESCAPED_WITH_GOLD;
+            }
         case MOVE_FORWARD:
             final Vector2 direction = explorer.getDirection();
             final Vector2 resultPosition = position.add(direction);
@@ -169,15 +182,16 @@ public class WumpusWorldRules implements Rules<WumpusWorldState, WumpusWorldActi
                                 return null;
                             }
                         }).filter(status -> status != null).findFirst().orElse(null);
-                // TODO: REST OF THIS LOGIC
             }
             else
             {
                 playerState = PlayerState.PLAYER_RAN_INTO_WALL;
-                // TODO: REST OF THIS LOGIC
             }
-
+        default:
+            throw new RuntimeException("Unexpected action: " + action.getAction());
         }
+
+        internalState.setPlayerState(player, playerState);
 
         // TODO Auto-generated method stub
         return null;

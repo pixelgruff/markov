@@ -18,6 +18,7 @@ import wumpusworld.entities.DungeonExplorer;
 import wumpusworld.entities.Gold;
 import wumpusworld.entities.Percept;
 import core.Player;
+import core.Score;
 
 public class WumpusWorldInternalState implements WumpusWorldState
 {
@@ -41,6 +42,8 @@ public class WumpusWorldInternalState implements WumpusWorldState
             dungeon_.addDungeonExplorerForPlayer(player);
             playerStates_.put(player, PlayerState.PLAYER_OK);
         });
+
+        /* Pick a player to be the first player */
         currentPlayer_ = players_.iterator().next();
     }
 
@@ -53,7 +56,8 @@ public class WumpusWorldInternalState implements WumpusWorldState
         currentPlayer_ = copy.currentPlayer_;
     }
 
-    public Player currentPlayer()
+    @Override
+    public Player getCurrentPlayer()
     {
         return currentPlayer_;
     }
@@ -105,7 +109,6 @@ public class WumpusWorldInternalState implements WumpusWorldState
             return Collections.emptyList();
         }
 
-        /* Assumes there is only one player. TODO: Fix this */
         final Vector2 explorerPosition = explorer.getPosition();
 
         final Set<Percept> percepts = Vector2.cardinalDirections().stream()
@@ -157,10 +160,33 @@ public class WumpusWorldInternalState implements WumpusWorldState
         Validate.isTrue(Objects.equals(currentPlayer_, player),
                 "Cannot set the state of a player who is " + "not currently active");
         Validate.notNull(state, "Cannot assign " + player + " a null state");
+        Validate.isTrue(players_.contains(player),
+                "Cannot set the player state for an unknown player!");
         playerStates_.put(player, state);
         if(state.isTerminal())
         {
             players_.remove(player);
         }
+
+        /* If a player has escaped with the gold, the game's over */
+        if(state == PlayerState.PLAYER_ESCAPED_WITH_GOLD)
+        {
+            players_.clear();
+        }
+    }
+
+    @Override
+    public WumpusWorldState copy()
+    {
+        return new WumpusWorldInternalState(this);
+    }
+
+    @Override
+    public Score getScoreForPlayer(final Player player)
+    {
+        // TODO FINISH
+        return playerStates_.entrySet().stream().collect(Collectors.toMap(entry)
+        // TODO Auto-generated method stub
+        return null;
     }
 }
