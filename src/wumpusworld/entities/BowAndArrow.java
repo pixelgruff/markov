@@ -2,8 +2,6 @@ package wumpusworld.entities;
 
 import java.util.Objects;
 
-import utils.Validate;
-
 public class BowAndArrow extends Item
 {
     private boolean hasArrows_ = true;
@@ -36,11 +34,16 @@ public class BowAndArrow extends Item
         return false;
     }
 
-    public BowAndArrow fired()
+    public boolean hasArrows()
     {
-        Validate.isTrue(hasArrows_, "Cannot fire a bow that doesn't have any arrows");
-        final boolean noArrows = false;
-        return new BowAndArrow(this, noArrows);
+        return hasArrows_;
+    }
+
+    public boolean fire()
+    {
+        final boolean firedSuccessfully = hasArrows_;
+        hasArrows_ = false;
+        return firedSuccessfully;
     }
 
     @Override

@@ -94,6 +94,15 @@ public class DungeonExplorer implements DungeonEntity
         return Objects.hash(position_, items_);
     }
 
+    public boolean fireArrow()
+    {
+        final BowAndArrow bowAndArrow = items_.stream().filter(item -> item instanceof BowAndArrow)
+                .map(item -> (BowAndArrow) item).filter(bow -> (bow.hasArrows())).findFirst()
+                .orElse(null);
+
+        return bowAndArrow != null && bowAndArrow.fire();
+    }
+
     @Override
     public boolean isPassable()
     {
@@ -112,7 +121,10 @@ public class DungeonExplorer implements DungeonEntity
 
     public Item release()
     {
-        Validate.isFalse(items_.isEmpty(), "Cannot release any items; you don't have any");
+        if(items_.isEmpty())
+        {
+            return null;
+        }
         return items_.pop();
     }
 

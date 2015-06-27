@@ -1,6 +1,7 @@
 package wumpusworld.states;
 
 import java.util.Collection;
+import java.util.Map;
 
 import wumpusworld.entities.Percept;
 import core.Player;
@@ -17,4 +18,8 @@ public interface WumpusWorldState
     public Player getCurrentPlayer();
 
     public Score getScoreForPlayer(final Player player);
+
+    public Map<Player, Score> scores();
+
+    public Map<Player, PlayerState> states();
 }

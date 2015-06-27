@@ -46,7 +46,8 @@ public final class Vector2
         final int index = cardinalDirections().indexOf(direction);
         if(index >= 0)
         {
-            return cardinalDirections().get((index - 1) % cardinalDirections().size());
+            return cardinalDirections().get(
+                    (cardinalDirections().size() + index - 1) % cardinalDirections().size());
         }
         return null;
     }

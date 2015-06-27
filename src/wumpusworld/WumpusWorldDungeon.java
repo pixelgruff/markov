@@ -24,6 +24,7 @@ import wumpusworld.entities.DungeonExplorer;
 import wumpusworld.entities.DungeonTile;
 import wumpusworld.entities.DungeonTileType;
 import wumpusworld.entities.Gold;
+import wumpusworld.entities.Item;
 import wumpusworld.entities.Ladder;
 import wumpusworld.entities.Wumpus;
 import core.Player;
@@ -62,8 +63,8 @@ public class WumpusWorldDungeon
     private static double pitPercentage()
     {
         /* This range of percentages is chosen arbitrarily */
-        final double minPercentage = 0.12;
-        final double maxPercentage = 0.37;
+        final double minPercentage = 0.121;
+        final double maxPercentage = 0.322;
         final ClosedRange<Double> validPitPercentages = new ClosedRange<Double>(minPercentage,
                 maxPercentage);
         double pitPercentage;
@@ -266,6 +267,20 @@ public class WumpusWorldDungeon
         return areSpacesConnected(source, ladderSpace());
     }
 
+    private boolean arePitsTooCloseTooLadder()
+    {
+        /*
+         * We define too close as being too close to the ladder if they're
+         * within the 8 direction "adjacent" spaces
+         */
+        final Vector2 ladder = ladderSpace();
+        final Collection<Vector2> adjacentDirections = Vector2.directionalVectors();
+        return adjacentDirections.stream().map(direction -> ladder.add(direction))
+                .filter(position -> contains(position)).map(space -> tileForSpace(space))
+                .filter(tile -> tile != null)
+                .anyMatch(tile -> tile.getTileType() == DungeonTileType.PIT);
+    }
+
     /**
      * Determines whether or not there exists a path between the gold and the
      * ladder. This is expensive, but extremely useful, because we can use this
@@ -329,11 +344,11 @@ public class WumpusWorldDungeon
      *
      * @return The Dungeon as if it were a 2D array
      */
-    public DungeonEntity[][] getDungeonAsArray()
+    public DungeonEntity [][] getDungeonAsArray()
     {
         final int width = width();
         final int height = height();
-        final DungeonEntity[][] dungeon = new DungeonEntity[width][height];
+        final DungeonEntity [][] dungeon = new DungeonEntity [width] [height];
         dungeon_.entrySet().forEach(spaceToRoomContents ->
         {
             final Vector2 space = spaceToRoomContents.getKey();
@@ -630,7 +645,7 @@ public class WumpusWorldDungeon
 
             /* Place the pit so we can evaluate it's "goodness" */
             dungeon_.replace(pitSpace, new DungeonTile(DungeonTileType.PIT, pitSpace));
-            if(canReachLadderFromGold())
+            if(!arePitsTooCloseTooLadder() && canReachLadderFromGold())
             {
                 /*
                  * TODO: Make sure that not only can the player reach the gold
@@ -779,6 +794,17 @@ public class WumpusWorldDungeon
             builder.append(System.lineSeparator());
         });
         return builder.toString();
+    }
+
+    public void putItem(final Item item)
+    {
+        Validate.notNull(item, "Cannot place a null item into the dungeon");
+        Validate.isTrue(dungeon_.containsKey(item.getPosition()),
+                "Cannot place an item outside of the dungeon");
+
+        final Vector2 position = item.getPosition();
+        final DungeonTile tile = tileForSpace(position);
+        dungeonEntities_.add(((Item) item.copy()).withOwner(tile));
     }
 
     /**

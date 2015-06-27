@@ -1,5 +1,6 @@
 package wumpusworld;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -97,15 +98,13 @@ public class WumpusWorldRules implements Rules<WumpusWorldState, WumpusWorldActi
     @Override
     public Score score(final WumpusWorldState state, final Player player)
     {
-        // TODO Auto-generated method stub
-        return null;
+        return state.getScoreForPlayer(player);
     }
 
     @Override
     public Map<Player, Score> scores(final WumpusWorldState state)
     {
-        // TODO Auto-generated method stub
-        return null;
+        return state.scores();
     }
 
     @Override
@@ -122,13 +121,16 @@ public class WumpusWorldRules implements Rules<WumpusWorldState, WumpusWorldActi
                 "Cannot take an invalid action");
 
         final WumpusWorldInternalState internalState = (WumpusWorldInternalState) state;
-        final WumpusWorldDungeon dungeon = internalState.getDungeon();
+        /* Make sure we don't modify the state that was passed in */
+        final WumpusWorldInternalState ourState = new WumpusWorldInternalState(internalState);
+        final WumpusWorldDungeon dungeon = ourState.getDungeon();
+
         final DungeonExplorer explorer = dungeon.getDungeonExplorer(player);
         Validate.notNull(explorer, "Cannot transition a null DungeonExplorer");
         final Vector2 position = explorer.getPosition();
 
-        PlayerState playerState = null;
-
+        PlayerState playerState = PlayerState.PLAYER_OK;
+        final Collection<Item> itemsDropped = new ArrayList<Item>();
         switch(action.getAction())
         {
         case TURN_RIGHT:
@@ -138,8 +140,12 @@ public class WumpusWorldRules implements Rules<WumpusWorldState, WumpusWorldActi
             explorer.turnLeft();
             break;
         case RELEASE:
-            explorer.release();
-            // TODO: Figure out how to add the item back into the dungeon
+            final Item releasedItem = explorer.release();
+            if(releasedItem != null)
+            {
+                itemsDropped.add(releasedItem);
+            }
+            break;
         case GRAB:
         {
             final Item item = dungeon.getEntitiesOnSpace(position).stream()
@@ -157,6 +163,7 @@ public class WumpusWorldRules implements Rules<WumpusWorldState, WumpusWorldActi
             {
                 playerState = PlayerState.PLAYER_ESCAPED_WITH_GOLD;
             }
+            break;
         case MOVE_FORWARD:
             final Vector2 direction = explorer.getDirection();
             final Vector2 resultPosition = position.add(direction);
@@ -181,20 +188,25 @@ public class WumpusWorldRules implements Rules<WumpusWorldState, WumpusWorldActi
                             {
                                 return null;
                             }
-                        }).filter(status -> status != null).findFirst().orElse(null);
+                        }).filter(status -> status != null).findFirst()
+                        .orElse(PlayerState.PLAYER_OK);
             }
             else
             {
                 playerState = PlayerState.PLAYER_RAN_INTO_WALL;
             }
+            break;
+        case FIRE_ARROW:
+            // TODO: HANDLE WE CURRENTLY DONT HANDLE FIRING ARROWS
+            break;
         default:
             throw new RuntimeException("Unexpected action: " + action.getAction());
         }
 
-        internalState.setPlayerState(player, playerState);
-
-        // TODO Auto-generated method stub
-        return null;
+        final WumpusWorldInternalState nextState = new WumpusWorldInternalState(ourState);
+        nextState.setPlayerState(player, playerState);
+        /* Add any items dropped back into the dungeon */
+        itemsDropped.forEach(item -> nextState.getDungeon().putItem(item));
+        return nextState;
     }
-
 }

@@ -3,6 +3,8 @@ package wumpusworld.states;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 
 import utils.Validate;
@@ -17,7 +19,7 @@ public class WumpusWorldPlayerState implements WumpusWorldState
 
     public WumpusWorldPlayerState(final Player player, final Collection<Percept> percepts)
     {
-        Validate.notEmpty(percepts, "Cannot create a WumpusWorldPlayerState without any percepts");
+        Validate.notNull(percepts, "Cannot create a WumpusWorldPlayerState with null percepts");
         Validate.notNull(player, "Cannot create a WumpusWorldPlayerState for a null player");
         percepts_ = new ArrayList<Percept>(percepts);
         player_ = player;
@@ -35,9 +37,9 @@ public class WumpusWorldPlayerState implements WumpusWorldState
     {
         if(!Objects.equals(player, player_))
         {
-            return Collections.emptyList();
+            return Collections.emptySet();
         }
-        return new ArrayList<Percept>(percepts_);
+        return new HashSet<Percept>(percepts_);
     }
 
     @Override
@@ -60,9 +62,20 @@ public class WumpusWorldPlayerState implements WumpusWorldState
     }
 
     @Override
+    public Map<Player, PlayerState> states()
+    {
+        return Collections.emptyMap();
+    }
+
+    @Override
     public Score getScoreForPlayer(final Player player)
     {
-        // TODO Auto-generated method stub
-        return null;
+        return new Score();
+    }
+
+    @Override
+    public Map<Player, Score> scores()
+    {
+        return Collections.emptyMap();
     }
 }

@@ -22,6 +22,9 @@ import core.Score;
 
 public class WumpusWorldInternalState implements WumpusWorldState
 {
+    private static final Score WINNING_SCORE = new Score(1.0);
+    private static final Score DEFAULT_SCORE = new Score(0.0);
+
     private final Player currentPlayer_;
     private final WumpusWorldDungeon dungeon_;
     private final Collection<Player> players_;
@@ -94,19 +97,19 @@ public class WumpusWorldInternalState implements WumpusWorldState
     {
         if(!Objects.equals(currentPlayer_, player))
         {
-            return Collections.emptyList();
+            return Collections.emptySet();
         }
 
         final PlayerState playerState = playerStates_.get(player);
         if(playerState == null || playerState.isTerminal())
         {
-            return Collections.emptyList();
+            return Collections.emptySet();
         }
 
         final DungeonExplorer explorer = dungeon_.getDungeonExplorer(player);
         if(explorer == null)
         {
-            return Collections.emptyList();
+            return Collections.emptySet();
         }
 
         final Vector2 explorerPosition = explorer.getPosition();
@@ -182,11 +185,37 @@ public class WumpusWorldInternalState implements WumpusWorldState
     }
 
     @Override
+    public Map<Player, Score> scores()
+    {
+        return playerStates_.entrySet().stream()
+                .collect(Collectors.toMap(entry -> entry.getKey(), entry ->
+                {
+                    switch(entry.getValue())
+                    {
+                    case PLAYER_ESCAPED_WITH_GOLD:
+                        return WINNING_SCORE;
+                    default:
+                        return DEFAULT_SCORE;
+                    }
+
+                }));
+    }
+
+    @Override
+    public Map<Player, PlayerState> states()
+    {
+        return new HashMap<>(playerStates_);
+    }
+
+    @Override
     public Score getScoreForPlayer(final Player player)
     {
-        // TODO FINISH
-        return playerStates_.entrySet().stream().collect(Collectors.toMap(entry)
-        // TODO Auto-generated method stub
-        return null;
+        return scores().getOrDefault(player, DEFAULT_SCORE);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Objects.toString(dungeon_);
     }
 }
