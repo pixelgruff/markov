@@ -6,17 +6,25 @@ import utils.Vector2;
 public final class Wumpus implements DungeonEntity
 {
     private final Vector2 position_;
+    private boolean dead_;
 
     public Wumpus(final Vector2 position)
     {
         Validate.notNull(position, "Cannot create a Wumpus with a null position");
         position_ = position;
+        dead_ = false;
     }
 
     public Wumpus(final Wumpus copy)
     {
         Validate.notNull(copy, "Cannot create a Wumpus from a null copy");
         position_ = copy.position_;
+        dead_ = copy.dead_;
+    }
+
+    public void slay()
+    {
+        dead_ = true;
     }
 
     @Override
@@ -31,10 +39,15 @@ public final class Wumpus implements DungeonEntity
         return position_;
     }
 
+    public boolean isDead()
+    {
+        return dead_;
+    }
+
     @Override
     public boolean isPassable()
     {
-        return false;
+        return !dead_;
     }
 
     @Override

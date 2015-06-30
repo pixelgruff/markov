@@ -3,7 +3,7 @@ package wumpusworld.states;
 import java.util.Collection;
 import java.util.Map;
 
-import wumpusworld.entities.Percept;
+import wumpusworld.Percept;
 import core.Player;
 import core.Score;
 

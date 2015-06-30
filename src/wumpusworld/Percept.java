@@ -1,9 +1,13 @@
-package wumpusworld.entities;
+package wumpusworld;
 
+import wumpusworld.entities.DungeonEntity;
+import wumpusworld.entities.DungeonTile;
+import wumpusworld.entities.Gold;
+import wumpusworld.entities.Wumpus;
 
 public enum Percept
 {
-    BREEZE, BUMP, GLITTER, STENCH;
+    BREEZE, BUMP, GLITTER, STENCH, DEATH_SCREAM;
 
     public static Percept perceptFor(final DungeonEntity entity)
     {

@@ -178,6 +178,12 @@ public class WumpusWorldDungeon
 
     public void addDungeonExplorerForPlayer(final Player player)
     {
+        Validate.notNull(player, "Cannot create a DungeonExplorer for a null player");
+        Validate.isFalse(
+                dungeonEntities_.stream().anyMatch(
+                        entity -> entity instanceof DungeonExplorer
+                                && ((DungeonExplorer) entity).getOwner().equals(player)),
+                "Cannot have multiple DungeonExplorers for the same player " + player);
         final Vector2 ladder = ladderSpace();
         /* Mix up what direction the adventurer starts, just for shits */
         final Vector2 randomDirection = RandomUtils.randomOf(Vector2.cardinalDirections());

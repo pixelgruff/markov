@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import utils.Validate;
-import wumpusworld.entities.Percept;
+import wumpusworld.Percept;
 import core.Player;
 import core.Score;
 

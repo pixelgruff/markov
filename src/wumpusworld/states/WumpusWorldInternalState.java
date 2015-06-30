@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 import utils.Iterators;
 import utils.Validate;
 import utils.Vector2;
+import wumpusworld.Percept;
 import wumpusworld.WumpusWorldDungeon;
 import wumpusworld.entities.DungeonExplorer;
 import wumpusworld.entities.Gold;
-import wumpusworld.entities.Percept;
 import core.Player;
 import core.Score;
 

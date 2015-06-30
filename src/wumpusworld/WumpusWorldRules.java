@@ -16,7 +16,6 @@ import wumpusworld.entities.DungeonTile;
 import wumpusworld.entities.DungeonTileType;
 import wumpusworld.entities.Gold;
 import wumpusworld.entities.Item;
-import wumpusworld.entities.Percept;
 import wumpusworld.entities.Wumpus;
 import wumpusworld.states.PlayerState;
 import wumpusworld.states.WumpusWorldInternalState;
@@ -165,6 +164,7 @@ public class WumpusWorldRules implements Rules<WumpusWorldState, WumpusWorldActi
             }
             break;
         case MOVE_FORWARD:
+        {
             final Vector2 direction = explorer.getDirection();
             final Vector2 resultPosition = position.add(direction);
             if(dungeon.contains(resultPosition))
@@ -175,7 +175,7 @@ public class WumpusWorldRules implements Rules<WumpusWorldState, WumpusWorldActi
                         .stream()
                         .map(entity ->
                         {
-                            if(entity instanceof Wumpus)
+                            if(entity instanceof Wumpus && !((Wumpus) entity).isDead())
                             {
                                 return PlayerState.PLAYER_EATEN;
                             }
@@ -196,9 +196,24 @@ public class WumpusWorldRules implements Rules<WumpusWorldState, WumpusWorldActi
                 playerState = PlayerState.PLAYER_RAN_INTO_WALL;
             }
             break;
+        }
         case FIRE_ARROW:
-            // TODO: HANDLE WE CURRENTLY DONT HANDLE FIRING ARROWS
+        {
+            final Vector2 direction = explorer.getDirection();
+            for(Vector2 currentSpace = position.add(direction); dungeon.contains(currentSpace); currentSpace = currentSpace
+                    .add(direction))
+            {
+                dungeon.getEntitiesOnSpace(currentSpace).forEach(entity ->
+                {
+                    if(entity instanceof Wumpus)
+                    {
+                        ((Wumpus) entity).slay();
+                        /* How do we deal with freshly "slayed" wumpuses ..? */
+                    }
+                });
+            }
             break;
+        }
         default:
             throw new RuntimeException("Unexpected action: " + action.getAction());
         }
