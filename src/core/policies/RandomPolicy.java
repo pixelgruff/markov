@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ThreadLocalRandom;
 
-import core.Policy;
 import utils.Validate;
+import core.Policy;
 
 public class RandomPolicy<S, A> implements Policy<S, A>
 {
@@ -26,6 +26,6 @@ public class RandomPolicy<S, A> implements Policy<S, A>
     @Override
     public String toString()
     {
-        return "Random";
+        return "For your playing pleasure, random it shall be.";
     }
 }

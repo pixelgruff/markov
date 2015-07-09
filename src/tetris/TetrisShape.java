@@ -11,11 +11,11 @@ import utils.Validate;
 import utils.Vector2;
 
 /**
- *
  * @author Ginger Represent a single, connected shape on the Tetris board. The
- * shape may or may not be a Tetrimino
+ *         shape may or may not be a Tetrimino
  */
-public class TetrisShape {
+public class TetrisShape
+{
 
     /* Keep track of every block in this shape */
     private Set<TetrisBlock> blocks_;
@@ -78,7 +78,8 @@ public class TetrisShape {
      * @param origin
      * @return
      */
-    public static TetrisShape getShapeFromTetrimino(final Tetrimino t, final Vector2 origin) {
+    public static TetrisShape getShapeFromTetrimino(final Tetrimino t, final Vector2 origin)
+    {
         int[] xBlocks = null;
         int[] yBlocks = null;
         ShapeCenter center = null;
@@ -257,7 +258,8 @@ public class TetrisShape {
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return blocks_.toString();
     }
     

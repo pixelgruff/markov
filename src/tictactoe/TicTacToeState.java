@@ -1,8 +1,5 @@
 package tictactoe;
 
-import core.Player;
-import core.Score;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,6 +11,8 @@ import java.util.stream.Collectors;
 
 import utils.Validate;
 import utils.Vector2;
+import core.Player;
+import core.Score;
 
 public class TicTacToeState
 {
@@ -48,9 +47,8 @@ public class TicTacToeState
     /**
      * Generates a TicTacToeBoard of the desired size. This TicTacToeBoard has a
      * width of $dimension, height of $dimensions, and requires $dimension
-     * moves-in-a-row to win.
-     *
-     * The dimension is checked for validity (must be a value greater than 0)
+     * moves-in-a-row to win. The dimension is checked for validity (must be a
+     * value greater than 0)
      *
      * @param players
      *            The Player objects who will be "playing" the game
@@ -97,8 +95,8 @@ public class TicTacToeState
                 players.size(), TicTacToeMark.values().length));
 
         /*
-         * Maps are annoying to initialize; also, Java needs a bidirectional Map
-         * so much. Need to determine an assignment of players to marks.
+         * Java needs a bidirectional Map so much. Need to determine an
+         * assignment of players to marks.
          */
         final List<Player> orderedPlayers = new ArrayList<>(players);
         for(int i = 0; i < orderedPlayers.size(); i++)
@@ -144,10 +142,11 @@ public class TicTacToeState
         }
     }
 
-    public TicTacToeMark getMarkForPlayer(final Player p)
+    public TicTacToeMark getMarkForPlayer(final Player player)
     {
-        Validate.notNull(p, "Null players do not have marks.");
-        return playerMarks_.get(p);
+        Validate.isTrue(playerMarks_.containsKey(player),
+                String.format("No known marks for player %s", player));
+        return playerMarks_.get(player);
     }
 
     /* Find the player who corresponds with a particular mark on the game board */
@@ -161,7 +160,7 @@ public class TicTacToeState
         Validate.isTrue(playerMarks_.values().contains(mark),
                 "Mark not found in all the marks this state knows about.");
 
-        List<Entry<Player, TicTacToeMark>> matchingPlayers = playerMarks_.entrySet().stream()
+        final List<Entry<Player, TicTacToeMark>> matchingPlayers = playerMarks_.entrySet().stream()
                 .filter((entry) -> entry.getValue() == mark).collect(Collectors.toList());
 
         Validate.notEmpty(matchingPlayers);
@@ -182,6 +181,11 @@ public class TicTacToeState
     public Score getPlayerScore(final Player player)
     {
         return playerScores_.getOrDefault(player, new Score());
+    }
+
+    public Map<Player, Score> getPlayerScores()
+    {
+        return new HashMap<Player, Score>(playerScores_);
     }
 
     public void makeTerminal()

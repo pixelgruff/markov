@@ -1,42 +1,40 @@
 package core;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 
-/**
- * TODO: Turn this into an interface with some nice, hefty functions to
- * manipulate game state. This way, we can implement an in-memory Automator
- * (offline) and have the game server itself be an automator.
- *
- * @author Ginger Client initializes the Game and Player objects and holds the
- *         primary game loop.
- * @param <S>
- * @param <A>
- * @param <R>
- */
-public class Automator<S, A, R extends Rules<S, A>>
+import utils.ClosedRange;
+import utils.Validate;
+
+public abstract class Automator<S, A, R extends Rules<S, A>>
 {
-    public Player play(final R rules, S state, final Map<Player, Policy<S, A>> policies)
-    {
-        while(!rules.isTerminal(state))
-        {
-            final Player player = rules.getCurrentPlayer(state);
-            final S knownState = rules.filterState(state, player);
-            final Collection<A> actions = rules.getAvailableActions(player, state);
-            final A action = policies.get(player).chooseAction(knownState, actions);
-            state = rules.transition(state, action);
-        }
-        System.out.println(state);
+    protected final R rules_;
+    protected S currentState_;
 
-        /*
-         * TODO: Handle the case of a draw. This assumes that one player has a
-         * higher score than all of the others.
-         */
-        final S terminalState = state;
-        return policies
-                .keySet()
-                .stream()
-                .max((player1, player2) -> rules.score(terminalState, player1).compareTo(
-                        rules.score(terminalState, player2))).orElse(null);
+    protected Automator(final R rules, final Collection<Player> players)
+    {
+        Validate.notNull(rules, "Cannot create an Automator with a null Rule set");
+        Validate.notEmpty(players, "Cannot create an Automator with a null/empty player collection");
+        final ClosedRange<Integer> possiblePlayerCounts = rules.numberOfPlayers();
+        Validate.isTrue(
+                possiblePlayerCounts.isValueWithin(players.size()),
+                String.format("Cannot create a game for %s, %d is not within %s", players,
+                        players.size(), possiblePlayerCounts));
+        rules_ = rules;
+
+        final S initialState = rules.generateInitialState(players);
+        currentState_ = initialState;
     }
+
+    public abstract S advanceUntilPlayerTurn(final Player player);
+
+    public abstract S advanceSingleAction();
+
+    public abstract S playGameToCompletion();
+
+    public abstract S currentState();
+
+    public abstract S currentStateFilteredForPlayer(final Player player);
+    
+    public abstract List<A> getActionsTaken();
 }

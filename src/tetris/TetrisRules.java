@@ -14,12 +14,15 @@ import java.util.stream.Stream;
 import utils.ClosedRange;
 import utils.Validate;
 import utils.Vector2;
+import core.Player;
+import core.Rules;
+import core.Score;
 
 /**
- *
  * @author Ginger Hold the logic for a basic game of Tetris.
  */
-public class TetrisRules implements Rules<TetrisState, TetrisAction> {
+public class TetrisRules implements Rules<TetrisState, TetrisAction>
+{
 
     private final int POINTS_PER_ROW = 100;
     private final int DEFAULT_HEIGHT = 22;
@@ -40,7 +43,8 @@ public class TetrisRules implements Rules<TetrisState, TetrisAction> {
     }
 
     @Override
-    public TetrisState transition(final TetrisState state, final TetrisAction action) {
+    public TetrisState transition(final TetrisState state, final TetrisAction action)
+    {
         /* Validation */
         Validate.notNull(state, "State must not be null.");
         Validate.notNull(action, "Action must not be null.");
@@ -135,7 +139,8 @@ public class TetrisRules implements Rules<TetrisState, TetrisAction> {
     }
 
     @Override
-    public Score score(final TetrisState state, final Player p) {
+    public Score score(final TetrisState state, final Player p)
+    {
         return state.getPlayerScore(p);
     }
 

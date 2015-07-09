@@ -1,32 +1,32 @@
 package tictactoe;
 
-import core.Player;
-import core.Rules;
-import core.Score;
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import utils.ClosedRange;
 import utils.Validate;
 import utils.Vector2;
+import core.Player;
+import core.Rules;
+import core.Score;
 
 /**
- *
  * @author Ginger Provides operations for updating the game, finding available
  *         moves, and finding a n-in-a-row (3-in-a-row by default).
  */
 public class TicTacToeRules implements Rules<TicTacToeState, TicTacToeAction>
 {
+    /*
+     * Number of marks in a row that a Player must have in order to consider
+     * having won
+     */
+    private static final int N_IN_A_ROW = 3;
+    private static final int NUMBER_OF_PLAYERS = 2;
 
     /* The default Mark that starts the game */
     private static final TicTacToeMark MARK_GOES_FIRST = TicTacToeMark.X;
-    private static final int DEFAULT_TIC_TAC_TOE_WIN_COUNT = 3;
-
-    /* Length of the path players must create with their marks to win */
-    private final int nInARow_;
 
     /*
      * Generate unit vectors to point towards every possible direction that we
@@ -69,24 +69,8 @@ public class TicTacToeRules implements Rules<TicTacToeState, TicTacToeAction>
         }
     }
 
-    public TicTacToeRules()
-    {
-        /* Default the winning path length to 3 marks */
-        this(DEFAULT_TIC_TAC_TOE_WIN_COUNT);
-    }
-
-    /*
-     * @param n Number of moves-in-a-row to win. Must be greater than 0.
-     */
-
-    public TicTacToeRules(final int n)
-    {
-        Validate.isTrue(n > 0, "Cannot play a game with a negative/zero win condition!");
-        nInARow_ = n;
-    }
-
     @Override
-    public Player getCurrentPlayer(TicTacToeState state)
+    public Player getCurrentPlayer(final TicTacToeState state)
     {
         Validate.notNull(state, "Null states have no players.");
         /* Check for the initial state */
@@ -101,14 +85,14 @@ public class TicTacToeRules implements Rules<TicTacToeState, TicTacToeAction>
 
     @Override
     /* Filtering states is easy in a game with perfect information */
-    public TicTacToeState filterState(TicTacToeState state, Player player)
+    public TicTacToeState filterState(final TicTacToeState state, final Player player)
     {
         return state;
     }
 
     /* Mark the board and check for a winner */
     @Override
-    public TicTacToeState transition(TicTacToeState state, TicTacToeAction action)
+    public TicTacToeState transition(final TicTacToeState state, final TicTacToeAction action)
     {
         Validate.notNull(state, "Cannot apply an action to a null TicTacToeBoard.");
         Validate.notNull(action, "Cannot apply a null action to a TicTacToeBoard.");
@@ -132,30 +116,39 @@ public class TicTacToeRules implements Rules<TicTacToeState, TicTacToeAction>
             newState.makeTerminal();
         }
         /* Update the "next player"; this only works with X-O games */
-        newState.setCurrentPlayer(newState.getPlayer((action.getMark() == TicTacToeMark.X) ? TicTacToeMark.O
-                : TicTacToeMark.X));
+        if(newState.isTerminal())
+        {
+            newState.setCurrentPlayer(null);
+        }
+        else
+        {
+            newState.setCurrentPlayer(newState.getPlayer((action.getMark() == TicTacToeMark.X) ? TicTacToeMark.O
+                    : TicTacToeMark.X));
+        }
 
         return newState;
     }
 
     @Override
     /**
-     * Find all the unmarked spaces on the board and return them as a list of 
+     * Find all the unmarked spaces on the board and return them as a list of
      * Actions with the appropriate mark
      */
-    public Collection<TicTacToeAction> getAvailableActions(Player player, TicTacToeState state)
+    public Collection<TicTacToeAction> getAvailableActions(final Player player,
+            final TicTacToeState state)
     {
         Validate.notNull(player, "Null players should not be requesting actions.");
         Validate.notNull(state, "Null states have no available actions.");
         Validate.isTrue(!state.isTerminal(), "Terminal states cannot have actions taken on them.");
 
-        final Collection<Vector2> positions = state.getBoardAsMap().keySet().stream()
+        /* Grab all positions that don't currently have a mark (null mapping) */
+        final Collection<Vector2> emptyPositions = state.getBoardAsMap().keySet().stream()
                 .filter((position) -> state.getMarkForPosition(position) == null)
                 .collect(Collectors.toList());
-        final List<TicTacToeAction> actions = new ArrayList<>(positions.size());
-        TicTacToeMark mark = state.getMarkForPlayer(player);
-        positions.stream().forEach((position) -> actions.add(new TicTacToeAction(position, mark)));
-        return actions;
+        final TicTacToeMark mark = state.getMarkForPlayer(player);
+        /* ...and turn them into actions */
+        return emptyPositions.stream().map(position -> new TicTacToeAction(position, mark))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -199,7 +192,7 @@ public class TicTacToeRules implements Rules<TicTacToeState, TicTacToeAction>
                     ++totalPathLength;
                 }
             }
-            if(totalPathLength >= nInARow_)
+            if(totalPathLength >= N_IN_A_ROW)
             {
                 return true;
             }
@@ -211,11 +204,25 @@ public class TicTacToeRules implements Rules<TicTacToeState, TicTacToeAction>
     @Override
     public ClosedRange<Integer> numberOfPlayers()
     {
-        return new ClosedRange<Integer>(2, 2);
+        return new ClosedRange<Integer>(NUMBER_OF_PLAYERS, NUMBER_OF_PLAYERS);
     }
 
     @Override
-    public TicTacToeState generateInitialState(final Collection<Player> players) {
-        return new TicTacToeState(players, DEFAULT_TIC_TAC_TOE_WIN_COUNT);
+    public TicTacToeState generateInitialState(final Collection<Player> players)
+    {
+        return new TicTacToeState(players, N_IN_A_ROW);
+    }
+
+    @Override
+    public Map<Player, Score> scores(final TicTacToeState state)
+    {
+        Validate.notNull(state, "Null states have no scores.");
+        return state.getPlayerScores();
+    }
+
+    @Override
+    public TicTacToeState copyState(final TicTacToeState state)
+    {
+        return new TicTacToeState(state);
     }
 }

@@ -1,12 +1,11 @@
 package utils;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
- * Poor-man's Apache Validation.
- * 
- * Simple Validation for expressions/objects, expand as needed.
- *
+ * Poor-man's Apache Validation. Simple Validation for expressions/objects,
+ * expand as needed.
  */
 public final class Validate
 {
@@ -22,7 +21,7 @@ public final class Validate
     /**
      * Validates that the provided assertion is true. Throws an
      * IllegalArgumentException if it is not.
-     * 
+     *
      * @param assertion
      *            Checks the assertion for truthiness
      * @throws IllegalArgumentException
@@ -36,7 +35,7 @@ public final class Validate
     /**
      * Validates that the provided assertion is true. Throws an
      * IllegalArgumentException if it is not.
-     * 
+     *
      * @param assertion
      *            Assertion to check for truthiness
      * @param message
@@ -51,7 +50,7 @@ public final class Validate
     /**
      * Validates that the provided assertion is false. Throws an
      * IllegalArgumentException if it is not.
-     * 
+     *
      * @param assertion
      *            Checks the assertion for truthiness
      * @throws IllegalArgumentException
@@ -65,7 +64,7 @@ public final class Validate
     /**
      * Validates that the provided assertion is false. Throws an
      * IllegalArgumentException if it is not.
-     * 
+     *
      * @param assertion
      *            Assertion to check for truthiness
      * @param message
@@ -80,10 +79,9 @@ public final class Validate
     /**
      * Validates that the collection provided is either null or empty. Throws an
      * IllegalArgumentException if it is not.
-     * 
+     *
      * @param collection
      *            Collection to check
-     * 
      */
     public static <T> void isEmpty(final Collection<T> collection)
     {
@@ -93,7 +91,7 @@ public final class Validate
     /**
      * Validates that the collection provided is either null or empty. Throws an
      * IllegalArgumentException if it is not.
-     * 
+     *
      * @param collection
      *            Collection to check
      * @param message
@@ -108,7 +106,7 @@ public final class Validate
     /**
      * Validates that the collection provided is either not null and not empty.
      * Throws an IllegalArgumentException if it is not.
-     * 
+     *
      * @param collection
      *            Collection to check
      */
@@ -120,7 +118,7 @@ public final class Validate
     /**
      * Validates that the collection provided is either not null and not empty.
      * Throws an IllegalArgumentException if it is not.
-     * 
+     *
      * @param collection
      *            Collection to check
      * @param message
@@ -133,9 +131,36 @@ public final class Validate
     }
 
     /**
+     * Validates that the collection provided is either not null and not empty.
+     * Throws an IllegalArgumentException if it is not.
+     *
+     * @param collection
+     *            Collection to check
+     */
+    public static <T, U> void notEmpty(final Map<T, U> map)
+    {
+        notEmpty(map, "Map was empty");
+    }
+
+    /**
+     * Validates that the collection provided is either not null and not empty.
+     * Throws an IllegalArgumentException if it is not.
+     *
+     * @param collection
+     *            Collection to check
+     * @param message
+     *            Optional message to add to the IllegalArgumentException, if
+     *            thrown
+     */
+    public static <T, U> void notEmpty(final Map<T, U> map, final String message)
+    {
+        failIfTrue(map == null || map.isEmpty(), message);
+    }
+
+    /**
      * Validates that the object provided is not null. Throws an
      * IllegalArgumentException if it is not.
-     * 
+     *
      * @param value
      *            Value to check for null-ness
      */
@@ -147,7 +172,7 @@ public final class Validate
     /**
      * Validates that the object provided is not null. Throws an
      * IllegalArgumentException if it is not.
-     * 
+     *
      * @param value
      *            Value to check for null-ness
      * @param message
@@ -161,7 +186,7 @@ public final class Validate
 
     /**
      * Checks to see if the provided value is not null.
-     * 
+     *
      * @param value
      *            Value to check for null-ness
      */
@@ -172,7 +197,7 @@ public final class Validate
 
     /**
      * Checks to see if the provided value is not null.
-     * 
+     *
      * @param value
      *            Value to check for null-ness
      * @param message
@@ -186,18 +211,15 @@ public final class Validate
 
     /**
      * Validates that the value is within the open interval [min, max]. Throws
-     * an IllegalArgumentException if it is not.
-     * 
-     * Note: This method should auto-box & unbox pretty much any valid numeric
-     * argument
-     * 
+     * an IllegalArgumentException if it is not. Note: This method should
+     * auto-box & unbox pretty much any valid numeric argument
+     *
      * @param value
      *            Non-null value to check
      * @param min
      *            Non-null minimum of range
      * @param max
      *            Non-null maximum of range
-     * 
      * @throws IllegalArgumentException
      *             if value is less than min or larger than max.
      */
@@ -206,8 +228,9 @@ public final class Validate
     {
         inRange(value, new OpenRange<T>(min, max));
     }
-    
-    public static <T extends Number & Comparable<T>> void inRange(final T value, final Range<T> range)
+
+    public static <T extends Number & Comparable<T>> void inRange(final T value,
+            final Range<T> range)
     {
         notNull(range, "Cannot determine if a value is within a null range");
         isTrue(range.isValueWithin(value), String.format("%d was not within %s", value, range));

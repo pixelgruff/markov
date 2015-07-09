@@ -1,12 +1,26 @@
 package utils;
 
-import java.util.Objects;
-
+/**
+ * ClosedRange is the same concept as a mathematical Closed Interval
+ * (http://mathworld.wolfram.com/ClosedInterval.html)
+ *
+ * A ClosedRange includes values at it's endpoints. IE, isValueWithin(min) and
+ * isValueWithin(max) both return true.
+ *
+ * @param <T>
+ *            Numerical Type of this range. Typically this is Integral types.
+ */
 public class ClosedRange<T extends Number & Comparable<T>> extends Range<T>
 {
     public ClosedRange(final T min, final T max)
     {
         super(min, max);
+    }
+
+    @Override
+    public boolean equals(final Object other)
+    {
+        return (other instanceof ClosedRange) && super.equals(other);
     }
 
     @Override
@@ -19,18 +33,5 @@ public class ClosedRange<T extends Number & Comparable<T>> extends Range<T>
     public String toString()
     {
         return String.format("[%d, %d]", min_, max_);
-    }
-
-    @Override
-    public boolean equals(final Object other)
-    {
-        if(!(other instanceof OpenRange))
-        {
-            return false;
-        }
-
-        @SuppressWarnings("rawtypes")
-        final ClosedRange range = (ClosedRange) other;
-        return Objects.equals(min_, range.min_) && Objects.equals(max_, range.max_);
     }
 }

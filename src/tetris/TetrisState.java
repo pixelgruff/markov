@@ -11,13 +11,16 @@ import java.util.Set;
 import utils.ClosedRange;
 import utils.Validate;
 import utils.Vector2;
+import core.Player;
+import core.Score;
 
 /**
  * Represent the Tetris board at a particular moment
  *
  * @author Ginger
  */
-public class TetrisState {
+public class TetrisState
+{
 
     /* Keep track of simulation time */
     private int simTime_;
@@ -39,7 +42,8 @@ public class TetrisState {
     private final Random random_ = new Random();
 
     /* Default constructor for Jackson */
-    public TetrisState() {
+    public TetrisState()
+    {
     }
 
     /**
@@ -48,7 +52,8 @@ public class TetrisState {
      * @param width
      * @param height
      */
-    public TetrisState(Collection<Player> players, final int width, final int height) {
+    public TetrisState(final Collection<Player> players, final int width, final int height)
+    {
         simTime_ = 0;
         width_ = width;
         height_ = height;
@@ -61,7 +66,8 @@ public class TetrisState {
         nextTetrimino_ = getRandomTetrimino();
     }
 
-    public TetrisState(final TetrisState copy) {
+    public TetrisState(final TetrisState copy)
+    {
         simTime_ = copy.simTime_;
         width_ = copy.width_;
         height_ = copy.height_;
@@ -83,7 +89,8 @@ public class TetrisState {
         simTime_++;
     }
 
-    public Score getPlayerScore(final Player player) {
+    public Score getPlayerScore(final Player player)
+    {
         return playerScores_.getOrDefault(player, new Score());
     }
     
@@ -126,15 +133,18 @@ public class TetrisState {
         return height_;
     }
 
-    public void makeTerminal() {
+    public void makeTerminal()
+    {
         terminal_ = true;
     }
 
-    public boolean isTerminal() {
+    public boolean isTerminal()
+    {
         return terminal_;
     }
 
-    public int getGameTime() {
+    public int getGameTime()
+    {
         return simTime_;
     }
     
