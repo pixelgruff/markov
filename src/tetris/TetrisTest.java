@@ -1,8 +1,10 @@
 package tetris;
 
 import core.Player;
+import core.Score;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import utils.Vector2;
 
@@ -27,6 +29,8 @@ public class TetrisTest {
         TetrisShape cheatingShape = TetrisShape.getShapeFromTetrimino(Tetrimino.I, new Vector2(1, 0));
         cheatingShape.makeUncontrollable();
         tetrisState.shapes.add(cheatingShape);
+        
+       Map<Player, Score> scores = tetrisRules.scores(tetrisState);
         
         for (int i = 0; i < 50; i++) {
             if (!tetrisRules.isTerminal(tetrisState)) {

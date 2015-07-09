@@ -8,21 +8,19 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import utils.ClosedRange;
 import utils.Validate;
 import utils.Vector2;
-import core.Player;
-import core.Rules;
-import core.Score;
 
 /**
+ *
  * @author Ginger Hold the logic for a basic game of Tetris.
  */
-public class TetrisRules implements Rules<TetrisState, TetrisAction>
-{
+public class TetrisRules implements Rules<TetrisState, TetrisAction> {
 
     private final int POINTS_PER_ROW = 100;
     private final int DEFAULT_HEIGHT = 22;
@@ -43,8 +41,7 @@ public class TetrisRules implements Rules<TetrisState, TetrisAction>
     }
 
     @Override
-    public TetrisState transition(final TetrisState state, final TetrisAction action)
-    {
+    public TetrisState transition(final TetrisState state, final TetrisAction action) {
         /* Validation */
         Validate.notNull(state, "State must not be null.");
         Validate.notNull(action, "Action must not be null.");
@@ -139,15 +136,27 @@ public class TetrisRules implements Rules<TetrisState, TetrisAction>
     }
 
     @Override
-    public Score score(final TetrisState state, final Player p)
-    {
+    public Score score(final TetrisState state, final Player p) {
         return state.getPlayerScore(p);
+    }
+
+    @Override
+    public Map<Player, Score> scores(TetrisState state) {
+        return state.getPlayers().stream()
+                .collect(Collectors.toMap(
+                                (player) -> player, (player) -> score(state, player)));
+    }
+
+    @Override
+    public TetrisState copyState(TetrisState state) {
+        return new TetrisState(state);
     }
 
     /**
      * Verify a state contains only valid shapes.
+     *
      * @param state
-     * @return 
+     * @return
      */
     private boolean isStateValid(final TetrisState state) {
         TetrisShape[][] board = new TetrisShape[state.getWidth()][state.getHeight()];
@@ -203,7 +212,7 @@ public class TetrisRules implements Rules<TetrisState, TetrisAction>
             /* Rebuild the list of full rows */
             fullRows = findFullRows(scorableState);
         }
-        
+
         /* Add the user-controllable shapes back into the state */
         scorableState.shapes.addAll(state.shapes.stream()
                 .filter((shape) -> shape.isControllable())
@@ -376,7 +385,7 @@ public class TetrisRules implements Rules<TetrisState, TetrisAction>
      */
     private TetrisState applyGravityToState(final TetrisState state) {
         Validate.notNull(state, "State must not be null.");
-        
+
         // TODO: There must be a way to sort the shapes so that the lowest
         // uninhibited shapes can drop first, instead of this hideous while 
         // loop... but I'm not going to try to find it right now
@@ -385,10 +394,10 @@ public class TetrisRules implements Rules<TetrisState, TetrisAction>
         while (!newState.shapes.equals(oldShapes)) {
             oldShapes = newState.shapes;
             newState.shapes = newState.shapes.stream()
-                .map((shape) -> applyDropToShape(newState, shape))
-                .collect(Collectors.toSet());
+                    .map((shape) -> applyDropToShape(newState, shape))
+                    .collect(Collectors.toSet());
         }
-        
+
         return newState;
     }
 

@@ -89,7 +89,7 @@ public interface Rules<S, A>
      * Score a player at a particular game state
      *
      * @param state
-     * @param p
+     * @param player
      * @return
      */
     public Score score(final S state, final Player player);
