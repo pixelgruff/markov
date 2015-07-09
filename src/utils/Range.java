@@ -12,7 +12,7 @@ public abstract class Range<T extends Number & Comparable<T>>
         Validate.notNull(min, "Cannot create a Range with a null minimum value");
         Validate.notNull(max, "Cannot create a Range with a null maximum value");
         Validate.isTrue(min.compareTo(max) <= 0,
-                "Cannot create a Range with a min that is greater than it's max");
+                "Cannot create a Range with a min that is greater than its max");
         min_ = min;
         max_ = max;
     }

@@ -1,9 +1,9 @@
 package tetris;
 
 /**
- *
- * @author Ginger Represent an action players can take during a Tetris game.
+ * Represent an action players can take during a Tetris game.
+ * @author Ginger 
  */
-public class TetrisAction {
-    
+public enum TetrisAction {
+    LEFT, RIGHT, ROTATE, DROP
 }
