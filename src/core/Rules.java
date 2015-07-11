@@ -2,6 +2,7 @@ package core;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 import utils.ClosedRange;
 
@@ -34,7 +35,7 @@ public interface Rules<S, A>
      * This is particularly
      *
      * @param state
-     * @param p
+     * @param player
      * @return
      */
     public S filterState(final S state, final Player player);
@@ -46,7 +47,7 @@ public interface Rules<S, A>
      *            Collection of players playing this game
      * @return State created under initial conditions.
      */
-    public S generateInitialState(final Collection<Player> players);
+    public S generateInitialState(final Set<Player> players);
 
     /**
      * Calculate all the valid actions for a particular player at a particular

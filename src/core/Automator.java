@@ -1,7 +1,7 @@
 package core;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import utils.ClosedRange;
 import utils.Validate;
@@ -11,7 +11,7 @@ public abstract class Automator<S, A, R extends Rules<S, A>>
     protected final R rules_;
     protected S currentState_;
 
-    protected Automator(final R rules, final Collection<Player> players)
+    protected Automator(final R rules, final Set<Player> players)
     {
         Validate.notNull(rules, "Cannot create an Automator with a null Rule set");
         Validate.notEmpty(players, "Cannot create an Automator with a null/empty player collection");

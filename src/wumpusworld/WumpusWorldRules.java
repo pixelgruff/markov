@@ -24,6 +24,7 @@ import wumpusworld.states.WumpusWorldState;
 import core.Player;
 import core.Rules;
 import core.Score;
+import java.util.Set;
 
 /*
  * Full details found:
@@ -49,7 +50,7 @@ public class WumpusWorldRules implements Rules<WumpusWorldState, WumpusWorldActi
     }
 
     @Override
-    public WumpusWorldState generateInitialState(final Collection<Player> players)
+    public WumpusWorldState generateInitialState(final Set<Player> players)
     {
         Validate.notEmpty(players, "Cannot create a WumpusWorldDungeon" + " without any players");
         Validate.isTrue(numberOfPlayers().isValueWithin(players.size()),

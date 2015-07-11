@@ -11,6 +11,7 @@ import utils.Vector2;
 import core.Player;
 import core.Rules;
 import core.Score;
+import java.util.Set;
 
 /**
  * @author Ginger Provides operations for updating the game, finding available
@@ -208,7 +209,7 @@ public class TicTacToeRules implements Rules<TicTacToeState, TicTacToeAction>
     }
 
     @Override
-    public TicTacToeState generateInitialState(final Collection<Player> players)
+    public TicTacToeState generateInitialState(final Set<Player> players)
     {
         return new TicTacToeState(players, N_IN_A_ROW);
     }
