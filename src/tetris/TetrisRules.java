@@ -206,6 +206,8 @@ public class TetrisRules implements Rules<TetrisState, TetrisAction> {
             scorableState.shapes = applyGravityToState(scorableState).shapes;
 
             /* Update the player's score based on rows removed */
+            // TODO: Use the Tetris algorithm for scoring, which takes multiple
+            // sequential scores into account
             int score = POINTS_PER_ROW * fullRows.size();
             scorableState.incrementPlayerScore(getCurrentPlayer(state), score);
 

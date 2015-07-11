@@ -183,7 +183,9 @@ public class TetrisState
         });
         return builder.toString();
     }
-    
+
+    // TODO: Use the Tetris system of pulling Tetriminos from a bag, rather 
+    // than generating them over an even distribution.
     private Tetrimino getRandomTetrimino() {
         /* Randomly select a Tetrimino */
         Tetrimino[] possibleTetriminos = Tetrimino.values();
