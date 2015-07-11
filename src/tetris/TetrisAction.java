@@ -5,5 +5,5 @@ package tetris;
  * @author Ginger 
  */
 public enum TetrisAction {
-    LEFT, RIGHT, ROTATE, DROP
+    LEFT, RIGHT, ROTATE, DROP, WAIT
 }

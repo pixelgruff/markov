@@ -1,12 +1,11 @@
 package tetris;
 
 import core.Player;
-import core.Score;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
-import utils.Vector2;
+import java.util.Scanner;
+import java.util.Set;
 
 /**
  *
@@ -16,30 +15,39 @@ public class TetrisTest {
 
     public static void main(String[] args) {
 
-        /* Test the creation of Tetris shapes */
+        /* Create a game of Tetris */
         final TetrisRules tetrisRules = new TetrisRules();
-        final ArrayList<Player> players = new ArrayList<Player>();
-        players.add(new Player("Human"));
-
+        final Set<Player> players = new HashSet<Player>();
+        final Player human = new Player("Human");
+        players.add(human);
         TetrisState tetrisState = tetrisRules.generateInitialState(players);
-        System.out.println(tetrisState);
-        System.out.println("");
 
-        /* Add some easy shapes so we can score some sweet points */
-        TetrisShape cheatingShape = TetrisShape.getShapeFromTetrimino(Tetrimino.I, new Vector2(1, 0));
-        cheatingShape.makeUncontrollable();
-        tetrisState.shapes.add(cheatingShape);
-        
-       Map<Player, Score> scores = tetrisRules.scores(tetrisState);
-        
-        for (int i = 0; i < 50; i++) {
-            if (!tetrisRules.isTerminal(tetrisState)) {
-                Collection<TetrisAction> actions = tetrisRules.getAvailableActions(players.get(0), tetrisState);
-                final TetrisAction action = new ArrayList<>(actions).get(ThreadLocalRandom.current().nextInt(actions.size()));
-                tetrisState = tetrisRules.transition(tetrisState, action);
-                System.out.println(tetrisState);
-                System.out.println("");
+        /* Map available actions to String representations, and vice-versa */
+        final Map<String, TetrisAction> actionMap = new HashMap<>();
+        actionMap.put("a", TetrisAction.LEFT);
+        actionMap.put("d", TetrisAction.RIGHT);
+        actionMap.put("s", TetrisAction.DROP);
+        actionMap.put("w", TetrisAction.ROTATE);
+        actionMap.put(" ", TetrisAction.WAIT);
+
+        /* Play the game with text output */
+        Scanner scan = new Scanner(System.in);
+        /* Begin game loop */
+        System.out.printf("Starting state: \n%s\n", tetrisState.toString());
+        System.out.printf("(%s) $ ", tetrisRules.getAvailableActions(human, tetrisState).toString());
+        String input = scan.nextLine();
+        while (!tetrisRules.isTerminal(tetrisState) && !input.equalsIgnoreCase("q")) {
+            if (!actionMap.containsKey(input)) {
+                System.err.println("Command not found!");
+            } else if (!tetrisRules.getAvailableActions(human, tetrisState).contains(actionMap.get(input))) {
+                System.err.println("Command not valid!");
+            } else {
+                tetrisState = tetrisRules.transition(tetrisState, actionMap.get(input));
             }
+
+            System.out.printf("Current state: \n%s\n", tetrisState.toString());
+            System.out.printf("(%s) $ ", tetrisRules.getAvailableActions(human, tetrisState).toString());
+            input = scan.nextLine();
         }
     }
 }

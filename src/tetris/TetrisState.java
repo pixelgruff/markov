@@ -1,7 +1,5 @@
 package tetris;
 
-import core.Player;
-import core.Score;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,7 +8,6 @@ import java.util.Random;
 import java.util.Set;
 import utils.ClosedRange;
 import utils.Validate;
-import utils.Vector2;
 import core.Player;
 import core.Score;
 
@@ -52,7 +49,7 @@ public class TetrisState
      * @param width
      * @param height
      */
-    public TetrisState(final Collection<Player> players, final int width, final int height)
+    public TetrisState(final Set<Player> players, final int width, final int height)
     {
         simTime_ = 0;
         width_ = width;
@@ -61,6 +58,8 @@ public class TetrisState
 
         players_ = players;
         playerScores_ = new HashMap<Player, Score>(players.size());
+        /* Initialize all scores to 0 */
+        players.stream().forEach((player) -> playerScores_.put(player, new Score(0)));
         xRange_ = new ClosedRange(0, width - 1);
         yRange_ = new ClosedRange(0, height - 1);
         nextTetrimino_ = getRandomTetrimino();
@@ -122,7 +121,7 @@ public class TetrisState
         Validate.isTrue(points > 0, "Increment to score should exceed 0.");
         Validate.isTrue(playerScores_.containsKey(player), "No such player found.");
         
-        playerScores_.get(player).add(new Score(points));
+        playerScores_.put(player, playerScores_.get(player).add(new Score(points)));
     }
 
     public int getWidth() {

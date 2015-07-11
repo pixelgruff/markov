@@ -34,7 +34,6 @@ public class TetrisShape
 
     public TetrisShape(final Set<TetrisBlock> blocks) {
         Validate.notNull(blocks, "Initial blocks must not be null.");
-        Validate.notEmpty(blocks, "Initial blocks must not be empty.");
         blocks_ = blocks;
     }
 
@@ -45,6 +44,7 @@ public class TetrisShape
      * @param center
      */
     public TetrisShape(final int[] xBlocks, final int[] yBlocks, final ShapeCenter center) {
+        Validate.notNull(center, "Cannot create a shape with no center!");
         Validate.isTrue(xBlocks != null && yBlocks != null
                 && xBlocks.length > 0 && yBlocks.length > 0,
                 "Arrays must both be non-null and of length > 0.");
@@ -67,7 +67,7 @@ public class TetrisShape
         Validate.notNull(copy, "Shape to copy must not be null.");
         blocks_ = copy.getAllBlocks();
         isControllable_ = copy.isControllable_;
-        center_ = new ShapeCenter(copy.center_);
+        center_ = (copy.center_ == null) ? null : new ShapeCenter(copy.center_);
     }
     
     /**
@@ -155,6 +155,7 @@ public class TetrisShape
      * @return 
      */
     public TetrisShape getRotatedClockwise() {
+        Validate.notNull(center_, "Rotation cannot operate on a shape with no defined center!  Are you certain this is a standard Tetrimino?");
         TetrisShape newShape = new TetrisShape(this);
         /** 
          * Clockwise math works as follows:
@@ -250,7 +251,7 @@ public class TetrisShape
         we do.  :-(  Currently the only concern (moving Tetriminos to valid
         positions) is handled by rounding and then casting to Int before sending
         a block somewhere.  Is there a more elegant way to handle this problem? */
-        center_ = center_.shiftCenterByDelta(delta);
+        if (center_ != null) center_ = center_.shiftCenterByDelta(delta);
     }
 
     public Set<TetrisBlock> getAllBlocks() {
@@ -291,7 +292,8 @@ public class TetrisShape
         return getAllAdjacentBlocks(blocks_).stream()
                 .map((neighborhood) -> {
                     TetrisShape shape = new TetrisShape(neighborhood);
-                    shape.isControllable_ = isControllable_;
+                    /* Split shapes should not be user-controllable */
+                    shape.isControllable_ = false;
                     /* Centers can no longer be safely assigned to split shapes */
                     shape.center_ = null;
                     return shape;

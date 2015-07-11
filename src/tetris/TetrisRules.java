@@ -32,7 +32,7 @@ public class TetrisRules implements Rules<TetrisState, TetrisAction> {
 
     @Override
     /* Generate an initial state with no shapes */
-    public TetrisState generateInitialState(final Collection<Player> players) {
+    public TetrisState generateInitialState(final Set<Player> players) {
         Validate.isTrue(players.size() == 1, "Exactly one person plays Tetris!");
         final TetrisState state = new TetrisState(players, DEFAULT_WIDTH, DEFAULT_HEIGHT);
         /* Add the first Tetrimino */
@@ -241,7 +241,9 @@ public class TetrisRules implements Rules<TetrisState, TetrisAction> {
                     return newShape;
                     /* Then map the result, allowing completely empty shapes to
                      expire and shapes with disconnected pieces to split */
-                }).flatMap((shape) -> shape.splitShape().stream())
+                })
+                .filter((shape) -> !shape.getAllBlocks().isEmpty())
+                .flatMap((shape) -> shape.splitShape().stream())
                 .collect(Collectors.toSet());
     }
 
@@ -290,6 +292,12 @@ public class TetrisRules implements Rules<TetrisState, TetrisAction> {
     private TetrisState applyMove(final TetrisState state, final TetrisAction action) {
         Validate.notNull(state, "Cannot apply moves to a null state.");
         Validate.notNull(action, "Cannot apply null actions.");
+        
+        /* Short-circuit operation in case the action is WAIT */
+        if (action == TetrisAction.WAIT) {
+            return state;
+        }
+        
         /* Identify and remove the user-controllable shape */
         final TetrisState newState = new TetrisState(state);
         final List<TetrisShape> controllableShapes = newState.shapes.stream()
